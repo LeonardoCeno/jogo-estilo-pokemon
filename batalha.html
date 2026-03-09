@@ -128,21 +128,7 @@
   <script>
     (function () {
       const API_URL = "./web_api.php";
-      const GOJO_IMAGE = "./gojopasta/GOJOBASEFINAL.png";
-      const GOJO_ROXO_FASE_1 = "./gojopasta/GOJOROXOFASE1FINAL.png";
-      const GOJO_ROXO_FASE_2 = "./gojopasta/gojoROXOFINALFINALVERDADEIRO.png";
-      const SANS_IMAGE = "./sanspasta/SANSBASEFINAL.png";
-      const SANS_SKILL_1_IMAGE = "./sanspasta/SANSSKILL1FINAL.png";
       const ACTION_DELAY_MS = 2000;
-
-      const SPRITES_PERSONALIZADOS_ACAO = {
-        gojo: {
-          "Vazio Roxo": GOJO_ROXO_FASE_1,
-        },
-        sans: {
-          "Parede de Ossos": SANS_SKILL_1_IMAGE,
-        },
-      };
 
       const state = {
         serverState: null,
@@ -190,8 +176,9 @@
         return response.json();
       }
 
-      function aplicarVisualPersonagem(nomeClasse, fighterEl, spriteTemporario = null) {
-        const nomeNormalizado = String(nomeClasse || "").trim().toLowerCase();
+      function aplicarVisualPersonagem(personagem, fighterEl, spriteTemporario = null) {
+        const nomeClasse = personagem?.classe || "";
+        const spriteBase = personagem?.visual?.baseSprite || null;
         const img = fighterEl.querySelector(".fighter-img");
         const initial = fighterEl.querySelector("span");
 
@@ -218,15 +205,13 @@
 
         fighterEl.classList.remove("action-casting");
 
-        if (nomeNormalizado === "gojo") {
-          img.src = GOJO_IMAGE;
+        if (spriteBase) {
+          img.src = spriteBase;
           fighterEl.classList.add("has-image");
+
           if (fighterEl.dataset.side === "player2") {
             fighterEl.classList.add("is-flipped");
           }
-        } else if (nomeNormalizado === "sans") {
-          img.src = SANS_IMAGE;
-          fighterEl.classList.add("has-image");
         }
 
         img.onerror = function () {
@@ -234,7 +219,7 @@
         };
 
         if (initial) {
-          initial.textContent = (nomeClasse || "?").trim().charAt(0).toUpperCase() || "?";
+          initial.textContent = (personagem?.classeNome || "?").trim().charAt(0).toUpperCase() || "?";
         }
       }
 
@@ -282,8 +267,8 @@
         document.getElementById("player-hp-bar").classList.toggle("danger", classePerigosa(player.vidaAtual, player.vidaMaxima));
         document.getElementById("enemy-hp-bar").classList.toggle("danger", classePerigosa(enemy.vidaAtual, enemy.vidaMaxima));
 
-        aplicarVisualPersonagem(enemy.classe, document.getElementById("fighter-enemy"), state.spriteTemporario.player2);
-        aplicarVisualPersonagem(player.classe, document.getElementById("fighter-player"), state.spriteTemporario.player1);
+        aplicarVisualPersonagem(enemy, document.getElementById("fighter-enemy"), state.spriteTemporario.player2);
+        aplicarVisualPersonagem(player, document.getElementById("fighter-player"), state.spriteTemporario.player1);
 
         if (server.winner) {
           els.turnInfo.textContent = `${server.winner === "p1" ? "Jogador 1" : "Jogador 2"} venceu!`;
@@ -331,14 +316,42 @@
         return chaveJogador === "p1" ? "player1" : "player2";
       }
 
-      function obterSpriteAcaoPersonalizado(classe, nomeAcao) {
-        const mapaClasse = SPRITES_PERSONALIZADOS_ACAO[classe];
-        if (!mapaClasse) return null;
-        return mapaClasse[nomeAcao] || null;
+      function obterFramesAnimacaoAcao(chaveJogador, nomeAcao) {
+        const server = state.serverState;
+        if (!server || !server[chaveJogador]) {
+          return [];
+        }
+
+        const actions = server[chaveJogador].visual?.actions || {};
+        const acao = actions[nomeAcao];
+        const frames = Array.isArray(acao?.frames) ? acao.frames : [];
+
+        return frames
+          .filter((frame) => frame && typeof frame.sprite === "string" && frame.sprite.trim() !== "")
+          .map((frame) => ({
+            sprite: frame.sprite,
+            durationMs: Number(frame.durationMs) > 0 ? Number(frame.durationMs) : 0,
+          }));
       }
 
-      function ehAnimacaoRoxoDuasFases(classe, nomeAcao) {
-        return classe === "gojo" && nomeAcao === "Vazio Roxo";
+      function executarAnimacaoFrames(ladoAtacante, frames) {
+        if (!frames.length) {
+          return ACTION_DELAY_MS;
+        }
+
+        let acumulado = 0;
+
+        frames.forEach((frame) => {
+          const inicioFrame = acumulado;
+          setTimeout(() => {
+            state.spriteTemporario[ladoAtacante] = frame.sprite;
+            atualizarHUD();
+          }, inicioFrame);
+
+          acumulado += frame.durationMs;
+        });
+
+        return acumulado > 0 ? acumulado : ACTION_DELAY_MS;
       }
 
       function setBotoesAcaoHabilitados(habilitado) {
@@ -385,25 +398,14 @@
         }
 
         const atacanteKey = state.serverState.currentKey;
-        const atacanteClasse = state.serverState[atacanteKey].classe;
         const ladoAtacante = obterChaveLado(atacanteKey);
-        const spriteAcao = obterSpriteAcaoPersonalizado(atacanteClasse, acao.nomeSprite || acao.nome);
+        const nomeAcao = acao.nomeSprite || acao.nome;
+        const framesAnimacao = obterFramesAnimacaoAcao(atacanteKey, nomeAcao);
 
         state.resolvendoAcao = true;
         setBotoesAcaoHabilitados(false);
 
-        if (spriteAcao) {
-          state.spriteTemporario[ladoAtacante] = spriteAcao;
-        }
-
-        atualizarHUD();
-
-        if (ehAnimacaoRoxoDuasFases(atacanteClasse, acao.nomeSprite || acao.nome)) {
-          setTimeout(() => {
-            state.spriteTemporario[ladoAtacante] = GOJO_ROXO_FASE_2;
-            atualizarHUD();
-          }, ACTION_DELAY_MS / 2);
-        }
+        const tempoResolucao = executarAnimacaoFrames(ladoAtacante, framesAnimacao);
 
         setTimeout(async () => {
           try {
@@ -434,7 +436,7 @@
             montarAcoes();
             setBotoesAcaoHabilitados(true);
           }
-        }, ACTION_DELAY_MS);
+        }, tempoResolucao);
       }
 
       async function iniciar() {

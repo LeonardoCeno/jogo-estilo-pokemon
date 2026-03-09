@@ -48,6 +48,7 @@ function exportarPersonagem(Personagem $personagem, string $label): array {
         'vidaMaxima' => $personagem->getVidaMaxima(),
         'energiaAtual' => $personagem->getEnergiaAtual(),
         'energiaMaxima' => $personagem->getEnergiaMaxima(),
+        'visual' => $personagem->getConfiguracaoVisual(),
     ];
 }
 

@@ -1,10 +1,10 @@
 <?php
 
-require_once 'Personagem.php';
-require_once 'Guerreiro.php';
-require_once 'Gojo.php';
-require_once 'Sans.php';
-require_once 'ExcecaoJogo.php';
+require_once __DIR__ . '/Personagem.php';
+require_once __DIR__ . '/Guerreiro.php';
+require_once __DIR__ . '/gojopasta/Gojo.php';
+require_once __DIR__ . '/sanspasta/Sans.php';
+require_once __DIR__ . '/ExcecaoJogo.php';
 
 function limparTela(): void {
     system('clear');

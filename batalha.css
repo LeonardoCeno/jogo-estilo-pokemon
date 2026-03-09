@@ -177,7 +177,7 @@ body {
   padding: 14px 14px 12px;
   border: 1px solid var(--line-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(22, 35, 63, 0.95), rgba(14, 24, 45, 0.95));
+  background: linear-gradient(180deg, rgba(66, 72, 82, 0.95), rgba(44, 49, 58, 0.95));
   backdrop-filter: blur(2px);
   z-index: 3;
 }

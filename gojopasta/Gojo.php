@@ -100,6 +100,26 @@ class Gojo extends Personagem {
         ];
     }
 
+    public function getConfiguracaoVisual(): array {
+        return [
+            'baseSprite' => './gojopasta/GOJOBASEFINAL.png',
+            'actions' => [
+                'Vazio Roxo' => [
+                    'frames' => [
+                        [
+                            'sprite' => './gojopasta/GOJOROXOFASE1FINAL.png',
+                            'durationMs' => 1000,
+                        ],
+                        [
+                            'sprite' => './gojopasta/gojoROXOFINALFINALVERDADEIRO.png',
+                            'durationMs' => 1000,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     protected function getRegeneracaoEnergia(): int {
         return self::REGENERACAO_PROPRIA;
     }

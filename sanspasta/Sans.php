@@ -88,6 +88,22 @@ class Sans extends Personagem {
         ];
     }
 
+    public function getConfiguracaoVisual(): array {
+        return [
+            'baseSprite' => './sanspasta/SANSBASEFINAL.png',
+            'actions' => [
+                'Parede de Ossos' => [
+                    'frames' => [
+                        [
+                            'sprite' => './sanspasta/SANSSKILL1FINAL.png',
+                            'durationMs' => 2000,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     protected function getRegeneracaoEnergia(): int {
         return self::REGENERACAO_PROPRIA;
     }

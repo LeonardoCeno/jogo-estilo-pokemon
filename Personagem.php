@@ -157,6 +157,13 @@ abstract class Personagem {
         ];
     }
 
+    public function getConfiguracaoVisual(): array {
+        return [
+            'baseSprite' => null,
+            'actions' => [],
+        ];
+    }
+
     abstract public function usarHabilidadeEspecial(Personagem $alvo): string;
 
     abstract public static function getDescricao(): string;
