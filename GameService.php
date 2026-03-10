@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Personagem.php';
-require_once __DIR__ . '/Guerreiro.php';
+require_once __DIR__ . '/sukunapasta/Sukuna.php';
 require_once __DIR__ . '/gojopasta/Gojo.php';
 require_once __DIR__ . '/sanspasta/Sans.php';
 require_once __DIR__ . '/ExcecaoJogo.php';
@@ -24,7 +24,7 @@ class GameService {
 
     public static function getClassMap(): array {
         return [
-            'guerreiro' => Guerreiro::class,
+            'sukuna' => Sukuna::class,
             'gojo' => Gojo::class,
             'sans' => Sans::class,
         ];
@@ -192,17 +192,21 @@ class GameService {
     }
 
     public static function buildAvailableActions(Personagem $current): array {
+        $descricoes = $current->getDescricoesAcoes();
+
         $actions = [
             [
                 'type' => 'attack',
                 'label' => 'ATACAR',
                 'skillName' => 'Ataque',
+                'description' => (string)($descricoes['Ataque'] ?? ''),
                 'targetsOpponent' => true,
             ],
             [
                 'type' => 'defend',
                 'label' => 'DEFENDER',
                 'skillName' => 'Defesa',
+                'description' => (string)($descricoes['Defesa'] ?? ''),
                 'targetsOpponent' => false,
             ],
         ];
@@ -213,6 +217,7 @@ class GameService {
                 'type' => 'skill',
                 'label' => strtoupper((string)$habilidade['nome']),
                 'skillName' => (string)$habilidade['nome'],
+                'description' => (string)($descricoes[(string)$habilidade['nome']] ?? ''),
                 'skillIndex' => $index,
                 'targetsOpponent' => $targetsOpponent,
             ];
@@ -269,6 +274,7 @@ class GameService {
         }
 
         self::consumirTurnoExtraDoCaster($game, $currentKey);
+        $current->processarEfeitosContinuosFimTurno();
 
         if (self::determineWinner($game) === null) {
             $game['turno'] = ((int)$game['turno']) + 1;
@@ -298,6 +304,7 @@ class GameService {
             'vidaMaxima' => $character->getVidaMaxima(),
             'energiaAtual' => $character->getEnergiaAtual(),
             'energiaMaxima' => $character->getEnergiaMaxima(),
+            'ultimoTipoDano' => $character->getUltimoTipoDano(),
             'defendendo' => $character->estaDefendendo(),
             'visual' => $character->getConfiguracaoVisual(),
         ];

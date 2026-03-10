@@ -49,7 +49,7 @@ $action = (string)($input['action'] ?? 'state');
 try {
     if ($action === 'start') {
         $p1 = GameService::createCharacter(
-            (string)($input['p1Class'] ?? 'guerreiro'),
+            (string)($input['p1Class'] ?? 'sukuna'),
             (string)($input['p1Name'] ?? 'Jogador 1')
         );
 

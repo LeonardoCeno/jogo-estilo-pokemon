@@ -19,6 +19,12 @@ class Sans extends Personagem {
     }
 
     public function receberDano(int $danoReal): void {
+        $tipoDano = $this->consumirTipoDanoRecebido();
+
+        if ($danoReal <= 0) {
+            return;
+        }
+
         if ($this->energiaAtual > 0) {
             $this->energiaAtual -= $danoReal;
 
@@ -29,7 +35,13 @@ class Sans extends Personagem {
             return;
         }
 
-        parent::receberDano($danoReal);
+        $this->registrarTipoDanoRecebido($tipoDano);
+
+        $this->vidaAtual -= $danoReal;
+
+        if ($this->vidaAtual < 0) {
+            $this->vidaAtual = 0;
+        }
     }
 
     public function blaster(Personagem $alvo): string {
@@ -86,6 +98,13 @@ class Sans extends Personagem {
                 "precisaAlvo" => true
             ]
         ];
+    }
+
+    public function getDescricoesAcoes(): array {
+        return array_merge(parent::getDescricoesAcoes(), [
+            'Blaster' => "Causa 3x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 3. Custo: " . self::CUSTO_BLASTER . ' energia.',
+            'Parede de Ossos' => "Causa 2x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 2. Custo: " . self::CUSTO_PAREDE_OSSOS . ' energia.',
+        ]);
     }
 
     public function getConfiguracaoVisual(): array {

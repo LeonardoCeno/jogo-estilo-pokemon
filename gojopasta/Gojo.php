@@ -118,6 +118,15 @@ class Gojo extends Personagem {
         ];
     }
 
+    public function getDescricoesAcoes(): array {
+        return array_merge(parent::getDescricoesAcoes(), [
+            'Azul' => "Causa 2x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 2. Custo: " . self::CUSTO_AZUL . ' energia.',
+            'Vazio Roxo' => "Causa {$this->ataque} x 5 = " . ($this->ataque * 5) . ' de dano e ignora defesa. Custo: ' . self::CUSTO_VAZIO_ROXO . ' energia.',
+            'Reverse Energy' => 'Cura 50 de vida imediatamente. Custo: ' . self::CUSTO_REVERSE . ' energia.',
+            'Infinity Void' => 'Ativa domínio, aplica pulo de turnos no inimigo e altera o cenário temporariamente. Custo: ' . self::CUSTO_INFINITO . ' energia.',
+        ]);
+    }
+
     public function getConfiguracaoVisual(): array {
         return [
             'baseSprite' => './gojopasta/GOJOBASEFINAL.png',

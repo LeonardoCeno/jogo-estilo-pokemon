@@ -29,9 +29,11 @@ Abra no navegador:
 
 ## Personagens
 
-### Guerreiro
+### Sukuna
 - Vida 120, Ataque 25, Defesa 10, Energia 80
-- Habilidade: Golpe Poderoso
+- Habilidades:
+	- Desmantelar (aplica bleed por 2 turnos)
+	- Kamino Fuga (aplica burn por 1 turno)
 
 ### Gojo
 - Vida 200, Ataque 15, Defesa 5, Energia 1000
@@ -45,7 +47,7 @@ Abra no navegador:
 ## Estrutura
 
 - `Personagem.php`: classe base e mecânicas comuns
-- `Guerreiro.php`, `gojopasta/Gojo.php`, `sanspasta/Sans.php`: classes concretas
+- `sukunapasta/Sukuna.php`, `gojopasta/Gojo.php`, `sanspasta/Sans.php`: classes concretas
 - `GameService.php`: fluxo central de partida (turno, ação, estado)
 - `web_api.php`: camada HTTP/JSON para o front-end
 - `index.php`: interface de terminal reutilizando `GameService.php`

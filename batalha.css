@@ -154,6 +154,12 @@ body {
     url('./gojopasta/domainfinal.jpg') center/cover no-repeat;
 }
 
+.arena.sukuna-domain-active {
+  background:
+    linear-gradient(rgba(20, 22, 32, 0.25), rgba(20, 22, 32, 0.25)),
+    url('./sukunapasta/santuario.jpeg') center/cover no-repeat;
+}
+
 .arena-glow {
   position: absolute;
   inset: 0;
@@ -171,6 +177,58 @@ body {
   background: linear-gradient(180deg, rgba(66, 72, 82, 0.95), rgba(44, 49, 58, 0.95));
   backdrop-filter: blur(2px);
   z-index: 3;
+}
+
+.damage-float {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --damage-x: 65px;
+  transform: translateX(var(--damage-x)) translateY(0) scale(0.9);
+  font-size: 1.94rem;
+  font-weight: 800;
+  color: #ff6d6d;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.fighter.player .damage-float {
+  --damage-x: -65px;
+}
+
+.fighter.enemy .damage-float {
+  --damage-x: 65px;
+}
+
+.damage-float.damage-bleed {
+  color: #8f1d1d;
+}
+
+.damage-float.damage-burn {
+  color: #ff9a2f;
+}
+
+.damage-float.show {
+  animation: damage-rise 1200ms ease-out forwards;
+}
+
+@keyframes damage-rise {
+  0% {
+    opacity: 0;
+    transform: translateX(var(--damage-x)) translateY(8px) scale(0.9);
+  }
+  20% {
+    opacity: 0.82;
+    transform: translateX(var(--damage-x)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--damage-x)) translateY(-18px) scale(1.04);
+  }
 }
 
 .card-enemy {
@@ -407,7 +465,9 @@ body {
   grid-template-columns: 1.5fr 1fr;
   gap: 14px;
   padding: 10px 12px;
+  height: 165px;
   min-height: 165px;
+  max-height: 165px;
 }
 
 .feed,
@@ -416,6 +476,19 @@ body {
   border-radius: 12px;
   background: linear-gradient(180deg, #222838, #1a1f2d);
   padding: 12px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.feed {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.controls {
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .feed h3,
@@ -433,10 +506,42 @@ body {
   gap: 7px;
   max-height: 95px;
   overflow: auto;
+  min-height: 0;
 }
 
 .feed li {
   font-size: 0.96rem;
+}
+
+.skill-preview {
+  display: none;
+  gap: 8px;
+  min-height: 95px;
+  max-height: 95px;
+  align-content: start;
+  overflow: auto;
+}
+
+.skill-preview h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.skill-preview p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.feed.previewing-skill ul {
+  display: none;
+}
+
+.feed.previewing-skill .skill-preview {
+  display: grid;
 }
 
 .grid-actions {
@@ -444,6 +549,8 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   align-content: start;
+  overflow: auto;
+  min-height: 0;
 }
 
 .grid-actions button {

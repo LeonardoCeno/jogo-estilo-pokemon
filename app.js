@@ -1,6 +1,5 @@
 (function () {
 	const API_URL = "./web_api.php";
-	const ACTION_DELAY_MS = 2000;
 	const ACOES_POR_PAGINA = 3;
 	const PLACEHOLDER_ACTIONS_HTML = `
 		<button disabled>ATACAR</button>
@@ -13,16 +12,27 @@
 		serverState: null,
 		resolvendoAcao: false,
 		actionPage: 0,
-		domainPreviewActive: false,
+		domainPreviewType: null,
+		animationTimers: {
+			player1: [],
+			player2: [],
+		},
 		spriteTemporario: {
 			player1: null,
 			player2: null,
 		},
 	};
 
+	const fighterPlayerEl = document.getElementById("fighter-player");
+	const fighterEnemyEl = document.getElementById("fighter-enemy");
+
 	const els = {
 		turnInfo: document.getElementById("turn-info"),
 		log: document.getElementById("battle-log"),
+		combatFeed: document.getElementById("combat-feed"),
+		skillPreview: document.getElementById("skill-preview"),
+		skillPreviewTitle: document.getElementById("skill-preview-title"),
+		skillPreviewText: document.getElementById("skill-preview-text"),
 		menu: document.getElementById("action-menu"),
 		arena: document.querySelector(".arena"),
 		setupPanel: document.getElementById("setup-panel"),
@@ -38,6 +48,7 @@
 		playAgainBtn: document.getElementById("play-again-btn"),
 		cards: {
 			enemy: {
+				root: document.getElementById("card-enemy"),
 				name: document.getElementById("enemy-name"),
 				tag: document.getElementById("enemy-tag"),
 				hpText: document.getElementById("enemy-hp-text"),
@@ -46,6 +57,7 @@
 				energyBar: document.getElementById("enemy-energy-bar"),
 			},
 			player: {
+				root: document.getElementById("card-player"),
 				name: document.getElementById("player-name"),
 				tag: document.getElementById("player-tag"),
 				hpText: document.getElementById("player-hp-text"),
@@ -55,8 +67,16 @@
 			},
 		},
 		fighters: {
-			p1: document.getElementById("fighter-player"),
-			p2: document.getElementById("fighter-enemy"),
+			p1: {
+				root: fighterPlayerEl,
+				img: fighterPlayerEl?.querySelector(".fighter-img") || null,
+				initial: fighterPlayerEl?.querySelector("span") || null,
+			},
+			p2: {
+				root: fighterEnemyEl,
+				img: fighterEnemyEl?.querySelector(".fighter-img") || null,
+				initial: fighterEnemyEl?.querySelector("span") || null,
+			},
 		},
 	};
 
@@ -100,16 +120,117 @@
 		}
 	}
 
+	function obterDescricaoAcao(acao) {
+		if (acao && typeof acao.description === "string" && acao.description.trim() !== "") {
+			return acao.description;
+		}
+
+		return "Ação de combate sem descrição detalhada.";
+	}
+
+	function mostrarPreviewSkill(nomeAcao, descricao) {
+		if (!els.combatFeed || !els.skillPreviewTitle || !els.skillPreviewText) {
+			return;
+		}
+
+		els.skillPreviewTitle.textContent = nomeAcao;
+		els.skillPreviewText.textContent = descricao;
+		els.combatFeed.classList.add("previewing-skill");
+	}
+
+	function esconderPreviewSkill() {
+		if (!els.combatFeed) {
+			return;
+		}
+
+		els.combatFeed.classList.remove("previewing-skill");
+	}
+
+	function normalizarTipoDano(tipoDano) {
+		if (tipoDano === "bleed" || tipoDano === "burn") {
+			return tipoDano;
+		}
+
+		return "direct";
+	}
+
+	function mostrarNumeroDano(chaveJogador, dano, tipoDano = "direct") {
+		if (dano <= 0) {
+			return;
+		}
+
+		const fighter = chaveJogador === "p1" ? els.fighters.p1.root : els.fighters.p2.root;
+		if (!fighter) {
+			return;
+		}
+
+		const damageEl = document.createElement("div");
+		damageEl.className = `damage-float damage-${normalizarTipoDano(tipoDano)}`;
+		damageEl.textContent = `-${dano}`;
+		fighter.appendChild(damageEl);
+
+		requestAnimationFrame(() => {
+			damageEl.classList.add("show");
+		});
+
+		setTimeout(() => {
+			damageEl.remove();
+		}, 1250);
+	}
+
+	function aplicarNovoEstado(novoEstado, mostrarDano = false) {
+		const estadoAnterior = state.serverState;
+		state.serverState = novoEstado;
+
+		if (!mostrarDano || !estadoAnterior?.started || !novoEstado?.started) {
+			return;
+		}
+
+		const danoP1 = Math.max(0, (estadoAnterior.p1?.vidaAtual ?? 0) - (novoEstado.p1?.vidaAtual ?? 0));
+		const danoP2 = Math.max(0, (estadoAnterior.p2?.vidaAtual ?? 0) - (novoEstado.p2?.vidaAtual ?? 0));
+		const tipoDanoP1 = novoEstado.p1?.ultimoTipoDano || "direct";
+		const tipoDanoP2 = novoEstado.p2?.ultimoTipoDano || "direct";
+
+		mostrarNumeroDano("p1", danoP1, tipoDanoP1);
+		mostrarNumeroDano("p2", danoP2, tipoDanoP2);
+	}
+
 	function limparSpritesTemporarios() {
 		state.spriteTemporario.player1 = null;
 		state.spriteTemporario.player2 = null;
 	}
 
-	function aplicarVisualPersonagem(personagem, fighterEl, spriteTemporario = null) {
+	function limparTimersAnimacao(lado) {
+		const timers = state.animationTimers[lado] || [];
+		timers.forEach((timerId) => clearTimeout(timerId));
+		state.animationTimers[lado] = [];
+	}
+
+	function limparTodosTimersAnimacao() {
+		limparTimersAnimacao("player1");
+		limparTimersAnimacao("player2");
+	}
+
+	function esperar(ms) {
+		if (ms <= 0) {
+			return Promise.resolve();
+		}
+
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
+
+	function aplicarVisualPersonagem(personagem, fighterRefs, spriteTemporario = null) {
+		if (!fighterRefs?.root || !fighterRefs.img) {
+			return;
+		}
+
 		const nomeClasse = personagem?.classe || "";
 		const spriteBase = personagem?.visual?.baseSprite || null;
-		const img = fighterEl.querySelector(".fighter-img");
-		const initial = fighterEl.querySelector("span");
+		const fighterEl = fighterRefs.root;
+		const img = fighterRefs.img;
+		const initial = fighterRefs.initial;
 
 		fighterEl.classList.remove("has-image", "is-flipped");
 		fighterEl.classList.remove("action-casting");
@@ -182,12 +303,17 @@
 		const server = state.serverState;
 		if (!server || !server.started) {
 			els.arena.classList.remove("domain-active");
+			els.arena.classList.remove("sukuna-domain-active");
 			els.winnerOverlay.classList.add("hidden");
 			return;
 		}
 
-		const dominioAtivo = state.domainPreviewActive || (server.domainTurnsRemaining || 0) > 0;
-		els.arena.classList.toggle("domain-active", dominioAtivo);
+		const previewSukunaAtivo = state.domainPreviewType === "sukuna";
+		const previewGojoAtivo = state.domainPreviewType === "gojo";
+		const dominioGojoAtivo = !previewSukunaAtivo && (previewGojoAtivo || (server.domainTurnsRemaining || 0) > 0);
+
+		els.arena.classList.toggle("domain-active", dominioGojoAtivo);
+		els.arena.classList.toggle("sukuna-domain-active", previewSukunaAtivo);
 
 		atualizarCardStatus(server.p2, els.cards.enemy);
 		atualizarCardStatus(server.p1, els.cards.player);
@@ -241,7 +367,21 @@
 		return obterFramesAnimacao(chaveJogador, "reactions", "defendingHit");
 	}
 
-	function executarAnimacaoFrames(lado, frames, duracaoPadrao = ACTION_DELAY_MS) {
+	function obterTipoPreviewDominio(nomeAcao) {
+		if (nomeAcao === "Infinity Void") {
+			return "gojo";
+		}
+
+		if (nomeAcao === "Santuario Malevolente") {
+			return "sukuna";
+		}
+
+		return null;
+	}
+
+	function executarAnimacaoFrames(lado, frames, duracaoPadrao = 0) {
+		limparTimersAnimacao(lado);
+
 		if (!frames.length) {
 			return duracaoPadrao;
 		}
@@ -249,14 +389,15 @@
 		let acumulado = 0;
 		frames.forEach((frame) => {
 			const inicioFrame = acumulado;
-			setTimeout(() => {
+			const timerId = setTimeout(() => {
 				state.spriteTemporario[lado] = frame.sprite;
 				atualizarHUD();
 			}, inicioFrame);
+			state.animationTimers[lado].push(timerId);
 			acumulado += frame.durationMs;
 		});
 
-		return acumulado > 0 ? acumulado : ACTION_DELAY_MS;
+		return acumulado > 0 ? acumulado : duracaoPadrao;
 	}
 
 	function setBotoesAcaoHabilitados(habilitado) {
@@ -322,6 +463,13 @@
 			if (!acao.type) {
 				btn.disabled = true;
 			} else {
+				const nomeAcao = acao.nomeSprite || acao.nome;
+				const descricaoAcao = obterDescricaoAcao(acao);
+				btn.addEventListener("mouseenter", () => mostrarPreviewSkill(nomeAcao, descricaoAcao));
+				btn.addEventListener("mouseleave", esconderPreviewSkill);
+				btn.addEventListener("focus", () => mostrarPreviewSkill(nomeAcao, descricaoAcao));
+				btn.addEventListener("blur", esconderPreviewSkill);
+
 				btn.addEventListener("click", () => processarAcaoComAnimacao(acao));
 			}
 
@@ -330,7 +478,7 @@
 	}
 
 	function obterElementoFighter(chaveJogador) {
-		return els.fighters[chaveJogador] || null;
+		return els.fighters[chaveJogador]?.root || null;
 	}
 
 	function animarEsquiva(chaveJogador) {
@@ -351,12 +499,14 @@
 			return;
 		}
 
+		esconderPreviewSkill();
+
 		const atacanteKey = state.serverState.currentKey;
 		const defensorKey = atacanteKey === "p1" ? "p2" : "p1";
 		const ladoAtacante = obterChaveLado(atacanteKey);
 		const ladoDefensor = obterChaveLado(defensorKey);
 		const nomeAcao = acao.nomeSprite || acao.nome;
-		const ehInfinityVoid = nomeAcao === "Infinity Void";
+		const tipoPreviewDominio = obterTipoPreviewDominio(nomeAcao);
 		const framesAnimacao = obterFramesAnimacaoAcao(atacanteKey, nomeAcao);
 		const defensorEstaDefendendo = state.serverState[defensorKey]?.defendendo === true;
 		const framesReacaoDefesa = acao.targetsOpponent && defensorEstaDefendendo
@@ -366,60 +516,63 @@
 		state.resolvendoAcao = true;
 		setBotoesAcaoHabilitados(false);
 
-		if (ehInfinityVoid) {
-			state.domainPreviewActive = true;
+		if (tipoPreviewDominio) {
+			state.domainPreviewType = tipoPreviewDominio;
 			atualizarHUD();
 		}
 
-		const duracaoAtaque = executarAnimacaoFrames(ladoAtacante, framesAnimacao, ACTION_DELAY_MS);
+		const duracaoAtaque = executarAnimacaoFrames(ladoAtacante, framesAnimacao, 0);
 		const duracaoDefesa = executarAnimacaoFrames(ladoDefensor, framesReacaoDefesa, 0);
 		const tempoResolucao = Math.max(duracaoAtaque, duracaoDefesa);
 
-		setTimeout(async () => {
-			try {
-				const resposta = await chamarApi("action", {
-					actionType: acao.type,
-					skillIndex: typeof acao.skillIndex === "number" ? acao.skillIndex : null,
-				});
+		try {
+			await esperar(tempoResolucao);
 
-				limparSpritesTemporarios();
-				if (resposta.state) {
-					state.serverState = resposta.state;
-				}
+			const resposta = await chamarApi("action", {
+				actionType: acao.type,
+				skillIndex: typeof acao.skillIndex === "number" ? acao.skillIndex : null,
+			});
 
-				state.domainPreviewActive = false;
-				const mensagem = resposta.message || "Ação executada.";
-				adicionarLog(mensagem);
-				atualizarHUD();
-
-				if (mensagem.includes("desviou!") && (acao.type === "attack" || acao.type === "skill")) {
-					animarEsquiva(atacanteKey === "p1" ? "p2" : "p1");
-				}
-			} catch (erro) {
-				limparSpritesTemporarios();
-				state.domainPreviewActive = false;
-				atualizarHUD();
-				adicionarLog(`Erro ao executar ação: ${erro.message || "falha desconhecida."}`);
-			} finally {
-				state.resolvendoAcao = false;
-				state.actionPage = 0;
-				montarAcoes();
-				setBotoesAcaoHabilitados(true);
+			limparSpritesTemporarios();
+			if (resposta.state) {
+				aplicarNovoEstado(resposta.state, true);
 			}
-		}, tempoResolucao);
+
+			state.domainPreviewType = null;
+			const mensagem = resposta.message || "Ação executada.";
+			adicionarLog(mensagem);
+			atualizarHUD();
+
+			if (mensagem.includes("desviou!") && (acao.type === "attack" || acao.type === "skill")) {
+				animarEsquiva(atacanteKey === "p1" ? "p2" : "p1");
+			}
+		} catch (erro) {
+			limparSpritesTemporarios();
+			state.domainPreviewType = null;
+			atualizarHUD();
+			adicionarLog(`Erro ao executar ação: ${erro.message || "falha desconhecida."}`);
+		} finally {
+			state.resolvendoAcao = false;
+			state.actionPage = 0;
+			montarAcoes();
+			setBotoesAcaoHabilitados(true);
+		}
 	}
 
 	function resetarParaSetup() {
 		state.serverState = null;
 		state.resolvendoAcao = false;
 		state.actionPage = 0;
-		state.domainPreviewActive = false;
+		state.domainPreviewType = null;
+		limparTodosTimersAnimacao();
 		limparSpritesTemporarios();
+		esconderPreviewSkill();
 
 		els.battleView.classList.add("hidden");
 		els.setupPanel.classList.remove("hidden");
 		els.winnerOverlay.classList.add("hidden");
 		els.arena.classList.remove("domain-active");
+		els.arena.classList.remove("sukuna-domain-active");
 
 		els.turnInfo.textContent = "Prepare a partida";
 		els.log.innerHTML = "";
@@ -447,11 +600,13 @@
 				return;
 			}
 
-			state.serverState = resposta.state;
+			aplicarNovoEstado(resposta.state, false);
 			state.resolvendoAcao = false;
 			state.actionPage = 0;
-			state.domainPreviewActive = false;
+			state.domainPreviewType = null;
+			limparTodosTimersAnimacao();
 			limparSpritesTemporarios();
+			esconderPreviewSkill();
 
 			els.setupPanel.classList.add("hidden");
 			els.battleView.classList.remove("hidden");
