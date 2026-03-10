@@ -136,6 +136,14 @@ class Gojo extends Personagem {
                         ],
                     ],
                 ],
+                'Reverse Energy' => [
+                    'frames' => [
+                        [
+                            'sprite' => './gojopasta/gojoreversofinal.png',
+                            'durationMs' => 1500,
+                        ],
+                    ],
+                ],
             ],
             'reactions' => [
                 'defendingHit' => [

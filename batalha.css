@@ -459,6 +459,12 @@ body {
   outline-offset: 1px;
 }
 
+.grid-actions button.pagination-btn {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
 @media (max-width: 860px) {
   .card {
     width: 285px;
