@@ -9,6 +9,19 @@ require_once __DIR__ . '/sanspasta/Sans.php';
 require_once __DIR__ . '/ExcecaoJogo.php';
 
 class GameService {
+    private static function getDomainVazio(): array {
+        return [
+            'turnsRemaining' => 0,
+            'casterKey' => null,
+            'targetKey' => null,
+            'extraCasterTurnPending' => false,
+        ];
+    }
+
+    private static function resetarDomain(array &$game): void {
+        $game['domain'] = self::getDomainVazio();
+    }
+
     public static function getClassMap(): array {
         return [
             'guerreiro' => Guerreiro::class,
@@ -57,12 +70,7 @@ class GameService {
                 'p1' => 0,
                 'p2' => 0,
             ],
-            'domain' => [
-                'turnsRemaining' => 0,
-                'casterKey' => null,
-                'targetKey' => null,
-                'extraCasterTurnPending' => false,
-            ],
+            'domain' => self::getDomainVazio(),
         ];
     }
 
@@ -90,12 +98,7 @@ class GameService {
         $game['domain']['turnsRemaining'] = $novoValor;
 
         if ($novoValor <= 0) {
-            $game['domain'] = [
-                'turnsRemaining' => 0,
-                'casterKey' => null,
-                'targetKey' => null,
-                'extraCasterTurnPending' => false,
-            ];
+            self::resetarDomain($game);
         }
     }
 
@@ -118,12 +121,7 @@ class GameService {
         $game['domain']['extraCasterTurnPending'] = false;
 
         if ($novoValor <= 0) {
-            $game['domain'] = [
-                'turnsRemaining' => 0,
-                'casterKey' => null,
-                'targetKey' => null,
-                'extraCasterTurnPending' => false,
-            ];
+            self::resetarDomain($game);
         }
     }
 

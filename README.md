@@ -35,7 +35,7 @@ Abra no navegador:
 
 ### Gojo
 - Vida 200, Ataque 15, Defesa 5, Energia 1000
-- Habilidades: Azul, Vazio Roxo, Reverse Energy
+- Habilidades: Azul, Vazio Roxo, Reverse Energy, Infinity Void
 
 ### Sans
 - Vida 1, Ataque 30, Defesa 1, Energia 200
@@ -49,7 +49,7 @@ Abra no navegador:
 - `GameService.php`: fluxo central de partida (turno, ação, estado)
 - `web_api.php`: camada HTTP/JSON para o front-end
 - `index.php`: interface de terminal reutilizando `GameService.php`
-- `batalha.html` / `batalha.css`: interface web
+- `batalha.html` / `batalha.css` / `app.js`: interface web
 
 ## Observações
 

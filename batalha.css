@@ -121,12 +121,9 @@ body {
 }
 
 .start-btn {
+  width: 100%;
   font-weight: 700;
   cursor: pointer;
-}
-
-.start-btn {
-  width: 100%;
 }
 
 .start-btn:hover {
