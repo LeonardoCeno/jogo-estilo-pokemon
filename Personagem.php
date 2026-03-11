@@ -6,12 +6,10 @@ abstract class Personagem {
     protected int $vidaMaxima;
     protected int $vidaAtual;
     protected int $ataque;
-    protected int $defesa;
     protected int $energiaMaxima;
     protected int $energiaAtual;
-
     protected bool $defendendo = false;
-    protected int $bonusDefesaTemporario = 0;
+
     protected int $sangramentoTurnos = 0;
     protected int $sangramentoDanoPorTurno = 0;
     protected int $queimaduraTurnos = 0;
@@ -21,7 +19,7 @@ abstract class Personagem {
 
     const REGENERACAO_ENERGIA = 10;
 
-    public function __construct(string $nome, int $vida, int $ataque, int $defesa, int $energia) {
+    public function __construct(string $nome, int $vida, int $ataque, int $energia) {
 
         $this->nome = $nome;
 
@@ -29,7 +27,6 @@ abstract class Personagem {
         $this->vidaAtual = $vida;
 
         $this->ataque = $ataque;
-        $this->defesa = $defesa;
 
         $this->energiaMaxima = $energia;
         $this->energiaAtual = $energia;
@@ -59,10 +56,6 @@ abstract class Personagem {
         return $this->ultimoTipoDano;
     }
 
-    public function getDefesaTotal(): int {
-        return $this->defesa + ($this->defendendo ? $this->bonusDefesaTemporario : 0);
-    }
-
     public function estaDefendendo(): bool {
         return $this->defendendo;
     }
@@ -73,6 +66,7 @@ abstract class Personagem {
 
     public function receberDano(int $danoReal): void {
         $tipoDano = $this->consumirTipoDanoRecebido();
+        $danoReal = $this->aplicarReducaoDanoDefesa($danoReal);
 
         if ($danoReal <= 0) {
             return;
@@ -100,11 +94,20 @@ abstract class Personagem {
     }
 
     public function iniciarTurno(): void {
-
         $this->defendendo = false;
-        $this->bonusDefesaTemporario = 0;
-
         $this->regenerarEnergia();
+    }
+
+    protected function aplicarReducaoDanoDefesa(int $danoReal): int {
+        if ($danoReal <= 0) {
+            return 0;
+        }
+
+        if (!$this->defendendo) {
+            return $danoReal;
+        }
+
+        return (int) ceil($danoReal * 0.5);
     }
 
     public function processarEfeitosContinuosFimTurno(): void {
@@ -118,7 +121,7 @@ abstract class Personagem {
         }
 
         $vidaAntes = $alvo->getVidaAtual();
-        $danoReal = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoReal = max(0, $this->ataque);
         $foiCritico = $this->tentouCriticoAtaque();
 
         if ($foiCritico) {
@@ -164,11 +167,7 @@ abstract class Personagem {
     }
 
     public function defender(): string {
-
         $this->defendendo = true;
-
-        $this->bonusDefesaTemporario = 5;
-
         return $this->formatarMensagemAcaoSemAlvo("Defesa");
     }
 
@@ -238,8 +237,8 @@ abstract class Personagem {
 
     public function getDescricoesAcoes(): array {
         return [
-            'Ataque' => "Causa dano base de {$this->ataque} menos a defesa total do alvo.",
-            'Defesa' => 'Aumenta em +5 a defesa temporária até o próximo turno.',
+            'Ataque' => "Causa {$this->ataque} de dano base.",
+            'Defesa' => 'Reduz em 50% o dano recebido até o próximo turno.',
         ];
     }
 

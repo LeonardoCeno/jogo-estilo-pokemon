@@ -12,7 +12,7 @@ class Gojo extends Personagem {
     const REGENERACAO_PROPRIA = 50;
 
     public function __construct(string $nome) {
-        parent::__construct($nome, 200, 15, 5, 1000);
+        parent::__construct($nome, 200, 20, 1000);
     }
 
     public static function getDescricao(): string {
@@ -27,7 +27,7 @@ class Gojo extends Personagem {
 
         $this->energiaAtual -= self::CUSTO_VAZIO_ROXO;
 
-        $danoReal = $this->ataque * 5; // ignora defesa
+        $danoReal = $this->ataque * 4; // ignora defesa
         $vidaAntes = $alvo->getVidaAtual();
 
         $alvo->receberDano($danoReal);
@@ -43,7 +43,7 @@ class Gojo extends Personagem {
 
         $this->energiaAtual -= self::CUSTO_AZUL;
 
-        $danoBase = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoBase = max(0, $this->ataque);
 
         $danoReal = $danoBase * 2;
         $vidaAntes = $alvo->getVidaAtual();
@@ -120,8 +120,8 @@ class Gojo extends Personagem {
 
     public function getDescricoesAcoes(): array {
         return array_merge(parent::getDescricoesAcoes(), [
-            'Azul' => "Causa 2x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 2. Custo: " . self::CUSTO_AZUL . ' energia.',
-            'Vazio Roxo' => "Causa {$this->ataque} x 5 = " . ($this->ataque * 5) . ' de dano e ignora defesa. Custo: ' . self::CUSTO_VAZIO_ROXO . ' energia.',
+            'Azul' => "Causa 2x o dano base: {$this->ataque} x 2. Custo: " . self::CUSTO_AZUL . ' energia.',
+            'Vazio Roxo' => "Causa {$this->ataque} x 5 = " . ($this->ataque * 5) . ' de dano. Custo: ' . self::CUSTO_VAZIO_ROXO . ' energia.',
             'Reverse Energy' => 'Cura 50 de vida imediatamente. Custo: ' . self::CUSTO_REVERSE . ' energia.',
             'Domain' => 'Ativa domínio, aplica pulo de turnos no inimigo e altera o cenário temporariamente. Custo: ' . self::CUSTO_INFINITO . ' energia.',
         ]);
@@ -130,6 +130,7 @@ class Gojo extends Personagem {
     public function getConfiguracaoVisual(): array {
         return [
             'baseSprite' => './gojopasta/sprites/GOJOBASEFINAL.png',
+            'winImage' => './gojopasta/sprites/gojowin.jpg',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
@@ -147,7 +148,22 @@ class Gojo extends Personagem {
                     'frames' => [
                         [
                             'sprite' => './gojopasta/sprites/gojoazulfinalreal.png',
-                            'durationMs' => 2000,
+                            'durationMs' => 1500,
+                        ],
+                                                [
+                            'sprite' => './gojopasta/sprites/gojoblockrealreal.png',
+                            'durationMs' => 200,
+                        ],
+                    ],
+                    'overlays' => [
+                        [
+                            'target' => 'opponent',
+                            'sprite' => './gojopasta/sprites/AZUL.png',
+                            'startMs' => 1500,
+                            'durationMs' => 1000,
+                            'x' => 0,
+                            'y' => 0,
+                            'scale' => 1,
                         ],
                     ],
                 ],
@@ -159,7 +175,26 @@ class Gojo extends Personagem {
                         ],
                         [
                             'sprite' => './gojopasta/sprites/gojoROXOFINALFINALVERDADEIRO.png',
-                            'durationMs' => 1000,
+                            'durationMs' => 650,
+                        ],
+                        [
+                            'sprite' => './gojopasta/sprites/gojoroxolast.png',
+                            'durationMs' => 400,
+                        ],
+                    ],
+                    'overlays' => [
+                        [
+                            'mode' => 'projectile',
+                            'target' => 'opponent',
+                            'sprite' => './gojopasta/sprites/ROXO.png',
+                            'startMs' => 1700,
+                            'durationMs' => 900,
+                            'sizePx' => 280,
+                            'frontOffsetPx' => 130,
+                            'startOffsetX' => 0,
+                            'startOffsetY' => -20,
+                            'endOffsetX' => 0,
+                            'endOffsetY' => 50,
                         ],
                     ],
                 ],
@@ -172,6 +207,7 @@ class Gojo extends Personagem {
                     ],
                 ],
                 'Domain' => [
+                                        'domainDelayMs' => 1500,
                     'frames' => [
                         [
                             'sprite' => './gojopasta/sprites/gojodomainfinal.png',

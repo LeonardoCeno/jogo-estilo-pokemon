@@ -10,16 +10,17 @@ class Sans extends Personagem {
     const REGENERACAO_PROPRIA = 0;
 
     public function __construct(string $nome) {
-        parent::__construct($nome, 1, 30, 1, 200);
+        parent::__construct($nome, 1, 30, 200);
     }
 
     public static function getDescricao(): string {
 
-        return "Sans (HP baixíssimo, ataque alto, defesa baixa, passiva: esquiva usando energia, habilidades: Blaster e Parede de Ossos)";
+        return "Sans (HP baixíssimo, ataque alto, passiva: esquiva usando energia, habilidades: Blaster e Parede de Ossos)";
     }
 
     public function receberDano(int $danoReal): void {
         $tipoDano = $this->consumirTipoDanoRecebido();
+        $danoReal = $this->aplicarReducaoDanoDefesa($danoReal);
 
         if ($danoReal <= 0) {
             return;
@@ -53,7 +54,7 @@ class Sans extends Personagem {
         $this->energiaAtual -= self::CUSTO_BLASTER;
         $vidaAntes = $alvo->getVidaAtual();
 
-        $danoBase = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoBase = max(0, $this->ataque);
 
         $danoReal = $danoBase * 3;
 
@@ -71,7 +72,7 @@ class Sans extends Personagem {
         $this->energiaAtual -= self::CUSTO_PAREDE_OSSOS;
         $vidaAntes = $alvo->getVidaAtual();
 
-        $danoBase = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoBase = max(0, $this->ataque);
 
         $danoReal = $danoBase * 2;
 
@@ -102,8 +103,8 @@ class Sans extends Personagem {
 
     public function getDescricoesAcoes(): array {
         return array_merge(parent::getDescricoesAcoes(), [
-            'Blaster' => "Causa 3x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 3. Custo: " . self::CUSTO_BLASTER . ' energia.',
-            'Parede de Ossos' => "Causa 2x o dano base após defesa: (ataque {$this->ataque} - defesa do alvo) x 2. Custo: " . self::CUSTO_PAREDE_OSSOS . ' energia.',
+            'Blaster' => "Causa 3x o dano base: {$this->ataque} x 3. Custo: " . self::CUSTO_BLASTER . ' energia.',
+            'Parede de Ossos' => "Causa 2x o dano base: {$this->ataque} x 2. Custo: " . self::CUSTO_PAREDE_OSSOS . ' energia.',
         ]);
     }
 

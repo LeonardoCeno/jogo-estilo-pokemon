@@ -12,7 +12,7 @@ class Sukuna extends Personagem {
     const REGENERACAO_PROPRIA = 70;
 
     public function __construct(string $nome) {
-        parent::__construct($nome, 200, 25, 10, 4000);
+        parent::__construct($nome, 200, 25, 4000);
     }
 
     public static function getDescricao(): string {
@@ -31,7 +31,7 @@ class Sukuna extends Personagem {
         }
 
         $vidaAntes = $alvo->getVidaAtual();
-        $danoReal = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoReal = (int) ceil(max(0, $this->ataque) * 1.5);
         $alvo->receberDano($danoReal);
 
         $danoBleed = (int) ceil($danoReal * 0.40);
@@ -60,10 +60,10 @@ class Sukuna extends Personagem {
         }
 
         $vidaAntes = $alvo->getVidaAtual();
-        $danoReal = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoReal = (int) ceil(max(0, $this->ataque) * 2);
         $alvo->receberDano($danoReal);
 
-        $danoBurn = (int) ceil($danoReal * 0.20);
+        $danoBurn = (int) ceil($danoReal * 0.40);
         if ($danoBurn > 0) {
             $alvo->aplicarQueimadura($danoBurn, 1);
         }
@@ -108,7 +108,7 @@ class Sukuna extends Personagem {
         }
 
         $vidaAntes = $alvo->getVidaAtual();
-        $danoReal = max(0, $this->ataque - $alvo->getDefesaTotal());
+        $danoReal = 90;
         $alvo->receberDano($danoReal);
 
         $danoBleed = (int) ceil($danoReal * 0.50);
@@ -152,16 +152,17 @@ class Sukuna extends Personagem {
 
     public function getDescricoesAcoes(): array {
         return array_merge(parent::getDescricoesAcoes(), [
-            'Desmantelar' => "Causa dano base: ataque {$this->ataque} - defesa do alvo. Aplica bleed por 1 turno com 40% do dano causado por turno. Custo: " . self::CUSTO_DESMANTELAR . ' energia.',
-            'Kamino Fuga' => "Causa dano base: ataque {$this->ataque} - defesa do alvo. Aplica burn por 1 turno com 20% do dano causado por turno. Custo: " . self::CUSTO_KAMINO_FUGA . ' energia.',
+            'Desmantelar' => "Causa 1.5x o dano base: {$this->ataque} x 1.5 = " . ((int) ceil(max(0, $this->ataque) * 1.5)) . '. Aplica bleed por 1 turno com 40% do dano causado por turno. Custo: ' . self::CUSTO_DESMANTELAR . ' energia.',
+            'Kamino Fuga' => "Causa 2x o dano base: {$this->ataque} x 2 = " . ((int) ceil(max(0, $this->ataque) * 2)) . '. Aplica burn por 1 turno com 20% do dano causado por turno. Custo: ' . self::CUSTO_KAMINO_FUGA . ' energia.',
             'Reverse Energy' => 'Cura 50 de vida imediatamente. Custo: ' . self::CUSTO_REVERSE . ' energia.',
-            'Domain' => "Causa dano base: ataque {$this->ataque} - defesa do alvo. Aplica bleed por 4 turnos com 50% do dano causado por turno. Custo: " . self::CUSTO_DOMAIN . ' energia.',
+            'Domain' => 'Causa 90 de dano fixo. Aplica bleed por 4 turnos com 50% do dano causado por turno. Custo: ' . self::CUSTO_DOMAIN . ' energia.',
         ]);
     }
 
     public function getConfiguracaoVisual(): array {
         return [
             'baseSprite' => './sukunapasta/sprites/sukunabasefinal.png',
+            'winImage' => './sukunapasta/sprites/sukunawin.jpg',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
@@ -187,7 +188,7 @@ class Sukuna extends Personagem {
                             'target' => 'opponent',
                             'sprite' => './sukunapasta/sprites/CORTE1.png',
                             'startMs' => 0,
-                            'durationMs' => 500,
+                            'durationMs' => 100,
                             'x' => 0,
                             'y' => 0,
                             'scale' => 1,
@@ -195,8 +196,35 @@ class Sukuna extends Personagem {
                         [
                             'target' => 'opponent',
                             'sprite' => './sukunapasta/sprites/CORTE2.png',
-                            'startMs' => 500,
-                            'durationMs' => 600,
+                            'startMs' => 100,
+                            'durationMs' => 200,
+                            'x' => 0,
+                            'y' => 0,
+                            'scale' => 1,
+                        ],
+                        [
+                            'target' => 'opponent',
+                            'sprite' => './sukunapasta/sprites/CORTE1.png',
+                            'startMs' => 300,
+                            'durationMs' => 200,
+                            'x' => 0,
+                            'y' => 0,
+                            'scale' => 1,
+                        ],
+                         [
+                            'target' => 'opponent',
+                            'sprite' => './sukunapasta/sprites/CORTE2.png',
+                            'startMs' => 600,
+                            'durationMs' => 170,
+                            'x' => 0,
+                            'y' => 0,
+                            'scale' => 1,
+                        ],
+                        [
+                            'target' => 'opponent',
+                            'sprite' => './sukunapasta/sprites/CORTE1.png',
+                            'startMs' => 900,
+                            'durationMs' => 200,
                             'x' => 0,
                             'y' => 0,
                             'scale' => 1,
@@ -207,15 +235,35 @@ class Sukuna extends Personagem {
                     'frames' => [
                         [
                             'sprite' => './sukunapasta/sprites/sukunafuga1.png',
-                            'durationMs' => 300,
+                            'durationMs' => 400,
                         ],
                         [
                             'sprite' => './sukunapasta/sprites/sukunafuga2.png',
-                            'durationMs' => 300,
+                            'durationMs' => 400,
                         ],
                         [
                             'sprite' => './sukunapasta/sprites/FUGAFINAL.png',
-                            'durationMs' => 1200,
+                            'durationMs' => 1300,
+                        ],
+                        [
+                            'sprite' => './sukunapasta/sprites/sukunabasefinal.png',
+                            'durationMs' => 100,
+                        ],
+                    ],
+                    'overlays' => [
+                        [
+                            'mode' => 'projectile',
+                            'target' => 'opponent',
+                            'sprite' => './sukunapasta/sprites/FUGA.png',
+                            'startMs' => 2300,
+                            'durationMs' => 900,
+                            'sizePx' => 280,
+                            'frontOffsetPx' => 130,
+                            'projectileAngleDeg' => -15,
+                            'startOffsetX' => 0,
+                            'startOffsetY' => -20,
+                            'endOffsetX' => 0,
+                            'endOffsetY' => 50,
                         ],
                     ],
                 ],
@@ -228,10 +276,11 @@ class Sukuna extends Personagem {
                     ],
                 ],
                 'Domain' => [
+                    'domainDelayMs' => 1200,
                     'frames' => [
                         [
                             'sprite' => './sukunapasta/sprites/DOMAINSUKUNA.png',
-                            'durationMs' => 5000,
+                            'durationMs' => 9000,
                         ],
                     ],
                 ],

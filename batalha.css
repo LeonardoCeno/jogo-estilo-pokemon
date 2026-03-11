@@ -176,6 +176,16 @@ body {
   overflow: hidden;
 }
 
+.arena-action-overlay {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+}
+
 .domain-cut {
   position: absolute;
   height: auto;
@@ -233,6 +243,10 @@ body {
 
 .damage-float.damage-burn {
   color: #ff9a2f;
+}
+
+.damage-float.damage-heal {
+  color: #66e08b;
 }
 
 .damage-float.show {

@@ -1,6 +1,7 @@
 (function () {
 	const API_URL = "./web_api.php";
 	const ACOES_POR_PAGINA = 3;
+	const ATRASO_CORTES_DOMINIO_SUKUNA_MS = 1000;
 	const SPRITES_CORTES_DOMINIO_SUKUNA = [
 		"./sukunapasta/sprites/CORTE1.png",
 		"./sukunapasta/sprites/CORTE2.png",
@@ -19,6 +20,9 @@
 		resolvendoAcao: false,
 		actionPage: 0,
 		domainPreviewType: null,
+		domainPreviewTimerId: null,
+		domainEffectsTimerId: null,
+		domainEffectsStartAt: 0,
 		animationTimers: {
 			player1: [],
 			player2: [],
@@ -154,16 +158,16 @@
 		els.combatFeed.classList.remove("previewing-skill");
 	}
 
-	function normalizarTipoDano(tipoDano) {
-		if (tipoDano === "bleed" || tipoDano === "burn") {
-			return tipoDano;
+	function normalizarTipoFlutuante(tipo) {
+		if (tipo === "bleed" || tipo === "burn" || tipo === "heal") {
+			return tipo;
 		}
 
 		return "direct";
 	}
 
-	function mostrarNumeroDano(chaveJogador, dano, tipoDano = "direct") {
-		if (dano <= 0) {
+	function mostrarNumeroFlutuante(chaveJogador, valor, tipo = "direct") {
+		if (valor <= 0) {
 			return;
 		}
 
@@ -173,8 +177,9 @@
 		}
 
 		const damageEl = document.createElement("div");
-		damageEl.className = `damage-float damage-${normalizarTipoDano(tipoDano)}`;
-		damageEl.textContent = `-${dano}`;
+		const tipoNormalizado = normalizarTipoFlutuante(tipo);
+		damageEl.className = `damage-float damage-${tipoNormalizado}`;
+		damageEl.textContent = tipoNormalizado === "heal" ? `+${valor}` : `-${valor}`;
 		fighter.appendChild(damageEl);
 
 		requestAnimationFrame(() => {
@@ -196,11 +201,15 @@
 
 		const danoP1 = Math.max(0, (estadoAnterior.p1?.vidaAtual ?? 0) - (novoEstado.p1?.vidaAtual ?? 0));
 		const danoP2 = Math.max(0, (estadoAnterior.p2?.vidaAtual ?? 0) - (novoEstado.p2?.vidaAtual ?? 0));
+		const curaP1 = Math.max(0, (novoEstado.p1?.vidaAtual ?? 0) - (estadoAnterior.p1?.vidaAtual ?? 0));
+		const curaP2 = Math.max(0, (novoEstado.p2?.vidaAtual ?? 0) - (estadoAnterior.p2?.vidaAtual ?? 0));
 		const tipoDanoP1 = novoEstado.p1?.ultimoTipoDano || "direct";
 		const tipoDanoP2 = novoEstado.p2?.ultimoTipoDano || "direct";
 
-		mostrarNumeroDano("p1", danoP1, tipoDanoP1);
-		mostrarNumeroDano("p2", danoP2, tipoDanoP2);
+		mostrarNumeroFlutuante("p1", danoP1, tipoDanoP1);
+		mostrarNumeroFlutuante("p2", danoP2, tipoDanoP2);
+		mostrarNumeroFlutuante("p1", curaP1, "heal");
+		mostrarNumeroFlutuante("p2", curaP2, "heal");
 	}
 
 	function limparSpritesTemporarios() {
@@ -217,16 +226,39 @@
 		fighter.querySelectorAll(".fighter-action-overlay").forEach((el) => el.remove());
 	}
 
+	function limparOverlaysArena() {
+		if (!els.arena) {
+			return;
+		}
+
+		els.arena.querySelectorAll(".arena-action-overlay").forEach((el) => el.remove());
+	}
+
 	function limparTimersAnimacao(lado) {
 		const timers = state.animationTimers[lado] || [];
 		timers.forEach((timerId) => clearTimeout(timerId));
 		state.animationTimers[lado] = [];
 		limparOverlaysFighter(lado);
+		limparOverlaysArena();
 	}
 
 	function limparTodosTimersAnimacao() {
 		limparTimersAnimacao("player1");
 		limparTimersAnimacao("player2");
+	}
+
+	function limparTimerPreviewDominio() {
+		if (state.domainPreviewTimerId !== null) {
+			clearTimeout(state.domainPreviewTimerId);
+			state.domainPreviewTimerId = null;
+		}
+	}
+
+	function limparTimerEfeitosDominio() {
+		if (state.domainEffectsTimerId !== null) {
+			clearTimeout(state.domainEffectsTimerId);
+			state.domainEffectsTimerId = null;
+		}
 	}
 
 	function esperar(ms) {
@@ -376,12 +408,12 @@
 
 		const vencedor = server.winner === "p1" ? server.p1 : server.p2;
 		const labelVencedor = server.winner === "p1" ? "Jogador 1" : "Jogador 2";
-		const spriteBase = vencedor?.visual?.baseSprite || "";
+		const spriteVitoria = vencedor?.visual?.winImage || vencedor?.visual?.baseSprite || "";
 
 		els.winnerText.textContent = `${labelVencedor} (${vencedor.nome}) venceu!`;
 
-		if (spriteBase) {
-			els.winnerSprite.src = spriteBase;
+		if (spriteVitoria) {
+			els.winnerSprite.src = spriteVitoria;
 			els.winnerSprite.style.display = "block";
 		} else {
 			els.winnerSprite.removeAttribute("src");
@@ -404,10 +436,11 @@
 		const previewSukunaAtivo = state.domainPreviewType === "sukuna";
 		const previewGojoAtivo = state.domainPreviewType === "gojo";
 		const dominioGojoAtivo = !previewSukunaAtivo && (previewGojoAtivo || (server.domainTurnsRemaining || 0) > 0);
+		const cortesDominioPermitidos = previewSukunaAtivo && Date.now() >= (state.domainEffectsStartAt || 0);
 
 		els.arena.classList.toggle("domain-active", dominioGojoAtivo);
 		els.arena.classList.toggle("sukuna-domain-active", previewSukunaAtivo);
-		atualizarEfeitoCortesDominioSukuna(previewSukunaAtivo);
+		atualizarEfeitoCortesDominioSukuna(cortesDominioPermitidos);
 
 		atualizarCardStatus(server.p2, els.cards.enemy);
 		atualizarCardStatus(server.p1, els.cards.player);
@@ -469,6 +502,7 @@
 		return overlays
 			.filter((overlay) => overlay && typeof overlay.sprite === "string" && overlay.sprite.trim() !== "")
 			.map((overlay) => ({
+				mode: overlay.mode === "projectile" ? "projectile" : "attached",
 				target: overlay.target === "self" ? "self" : "opponent",
 				sprite: overlay.sprite,
 				startMs: Number(overlay.startMs) > 0 ? Number(overlay.startMs) : 0,
@@ -476,6 +510,13 @@
 				x: Number.isFinite(Number(overlay.x)) ? Number(overlay.x) : 0,
 				y: Number.isFinite(Number(overlay.y)) ? Number(overlay.y) : 0,
 				scale: Number(overlay.scale) > 0 ? Number(overlay.scale) : 1,
+				sizePx: Number(overlay.sizePx) > 0 ? Number(overlay.sizePx) : 260,
+				frontOffsetPx: Number.isFinite(Number(overlay.frontOffsetPx)) ? Number(overlay.frontOffsetPx) : 0,
+				projectileAngleDeg: Number.isFinite(Number(overlay.projectileAngleDeg)) ? Number(overlay.projectileAngleDeg) : 0,
+				startOffsetX: Number.isFinite(Number(overlay.startOffsetX)) ? Number(overlay.startOffsetX) : 0,
+				startOffsetY: Number.isFinite(Number(overlay.startOffsetY)) ? Number(overlay.startOffsetY) : 0,
+				endOffsetX: Number.isFinite(Number(overlay.endOffsetX)) ? Number(overlay.endOffsetX) : 0,
+				endOffsetY: Number.isFinite(Number(overlay.endOffsetY)) ? Number(overlay.endOffsetY) : 0,
 			}));
 	}
 
@@ -498,6 +539,17 @@
 		}
 
 		return null;
+	}
+
+	function obterDelayDominio(chaveJogador, nomeAcao) {
+		if (nomeAcao !== "Domain") {
+			return 0;
+		}
+
+		const actionConfig = state.serverState?.[chaveJogador]?.visual?.actions?.[nomeAcao] || {};
+		const domainDelayMs = Number(actionConfig.domainDelayMs);
+
+		return Number.isFinite(domainDelayMs) && domainDelayMs > 0 ? domainDelayMs : 0;
 	}
 
 	function executarAnimacaoFrames(lado, frames, duracaoPadrao = 0) {
@@ -527,6 +579,7 @@
 		}
 
 		let tempoTotal = 0;
+		const arenaRect = els.arena?.getBoundingClientRect();
 
 		overlays.forEach((overlay) => {
 			const alvoKey = overlay.target === "self"
@@ -542,6 +595,56 @@
 			const inicio = overlay.startMs;
 			const duracao = overlay.durationMs;
 			tempoTotal = Math.max(tempoTotal, inicio + duracao);
+
+			if (overlay.mode === "projectile") {
+				const fighterOrigem = atacanteKey === "p1" ? els.fighters.p1.root : els.fighters.p2.root;
+				const fighterAlvo = alvoKey === "p1" ? els.fighters.p1.root : els.fighters.p2.root;
+
+				if (!arenaRect || !fighterOrigem || !fighterAlvo) {
+					return;
+				}
+
+				const origemRect = fighterOrigem.getBoundingClientRect();
+				const alvoRect = fighterAlvo.getBoundingClientRect();
+				const direcaoFrente = atacanteKey === "p1" ? 1 : -1;
+				const escalaHorizontal = atacanteKey === "p2" ? -1 : 1;
+				const anguloProjetil = atacanteKey === "p2"
+					? (-1 * overlay.projectileAngleDeg)
+					: overlay.projectileAngleDeg;
+
+				const origemX = (origemRect.left + origemRect.width / 2) - arenaRect.left + (direcaoFrente * overlay.frontOffsetPx) + overlay.startOffsetX;
+				const origemY = (origemRect.top + origemRect.height / 2) - arenaRect.top + overlay.startOffsetY;
+				const alvoX = (alvoRect.left + alvoRect.width / 2) - arenaRect.left + overlay.endOffsetX;
+				const alvoY = (alvoRect.top + alvoRect.height / 2) - arenaRect.top + overlay.endOffsetY;
+
+				const timerInicioProjetil = setTimeout(() => {
+					const projectileEl = document.createElement("img");
+					projectileEl.className = "arena-action-overlay";
+					projectileEl.src = overlay.sprite;
+					projectileEl.alt = "";
+					projectileEl.setAttribute("aria-hidden", "true");
+					projectileEl.style.width = `${overlay.sizePx}px`;
+					projectileEl.style.left = `${origemX}px`;
+					projectileEl.style.top = `${origemY}px`;
+					projectileEl.style.transform = `translate(-50%, -50%) scaleX(${escalaHorizontal}) rotate(${anguloProjetil}deg)`;
+					projectileEl.style.transition = `left ${duracao}ms linear, top ${duracao}ms linear`;
+					els.arena?.appendChild(projectileEl);
+
+					requestAnimationFrame(() => {
+						projectileEl.style.left = `${alvoX}px`;
+						projectileEl.style.top = `${alvoY}px`;
+					});
+
+					const timerFimProjetil = setTimeout(() => {
+						projectileEl.remove();
+					}, duracao);
+
+					state.animationTimers[ladoAlvo].push(timerFimProjetil);
+				}, inicio);
+
+				state.animationTimers[ladoAlvo].push(timerInicioProjetil);
+				return;
+			}
 
 			const timerInicio = setTimeout(() => {
 				const overlayEl = document.createElement("img");
@@ -672,6 +775,7 @@
 		const ladoDefensor = obterChaveLado(defensorKey);
 		const nomeAcao = acao.nomeSprite || acao.nome;
 		const tipoPreviewDominio = obterTipoPreviewDominio(atacanteKey, nomeAcao);
+		const delayDominioMs = obterDelayDominio(atacanteKey, nomeAcao);
 		const framesAnimacao = obterFramesAnimacaoAcao(atacanteKey, nomeAcao);
 		const overlaysAnimacao = obterOverlaysAnimacaoAcao(atacanteKey, nomeAcao);
 		const defensorEstaDefendendo = state.serverState[defensorKey]?.defendendo === true;
@@ -682,15 +786,34 @@
 		state.resolvendoAcao = true;
 		setBotoesAcaoHabilitados(false);
 
-		if (tipoPreviewDominio) {
-			state.domainPreviewType = tipoPreviewDominio;
-			atualizarHUD();
-		}
-
 		const duracaoAtaque = executarAnimacaoFrames(ladoAtacante, framesAnimacao, 0);
 		const duracaoDefesa = executarAnimacaoFrames(ladoDefensor, framesReacaoDefesa, 0);
 		const duracaoOverlays = executarOverlaysAnimacao(atacanteKey, overlaysAnimacao);
-		const tempoResolucao = Math.max(duracaoAtaque, duracaoDefesa, duracaoOverlays);
+
+		limparTimerPreviewDominio();
+		limparTimerEfeitosDominio();
+		if (tipoPreviewDominio) {
+			const atrasoExtraEfeitoDominio = tipoPreviewDominio === "sukuna"
+				? ATRASO_CORTES_DOMINIO_SUKUNA_MS
+				: 0;
+			state.domainEffectsStartAt = Date.now() + delayDominioMs + atrasoExtraEfeitoDominio;
+			state.domainEffectsTimerId = setTimeout(() => {
+				state.domainEffectsTimerId = null;
+				atualizarHUD();
+			}, delayDominioMs + atrasoExtraEfeitoDominio);
+			state.domainPreviewTimerId = setTimeout(() => {
+				state.domainPreviewType = tipoPreviewDominio;
+				state.domainPreviewTimerId = null;
+				atualizarHUD();
+			}, delayDominioMs);
+		} else {
+			state.domainEffectsStartAt = 0;
+		}
+
+		const duracaoPreviewDominio = tipoPreviewDominio
+			? (delayDominioMs + (tipoPreviewDominio === "sukuna" ? ATRASO_CORTES_DOMINIO_SUKUNA_MS : 0))
+			: 0;
+		const tempoResolucao = Math.max(duracaoAtaque, duracaoDefesa, duracaoOverlays, duracaoPreviewDominio);
 
 		try {
 			await esperar(tempoResolucao);
@@ -705,7 +828,10 @@
 				aplicarNovoEstado(resposta.state, true);
 			}
 
+			limparTimerPreviewDominio();
+			limparTimerEfeitosDominio();
 			state.domainPreviewType = null;
+			state.domainEffectsStartAt = 0;
 			const mensagem = resposta.message || "Ação executada.";
 			adicionarLog(mensagem);
 			atualizarHUD();
@@ -715,7 +841,10 @@
 			}
 		} catch (erro) {
 			limparSpritesTemporarios();
+			limparTimerPreviewDominio();
+			limparTimerEfeitosDominio();
 			state.domainPreviewType = null;
+			state.domainEffectsStartAt = 0;
 			atualizarHUD();
 			adicionarLog(`Erro ao executar ação: ${erro.message || "falha desconhecida."}`);
 		} finally {
@@ -730,7 +859,10 @@
 		state.serverState = null;
 		state.resolvendoAcao = false;
 		state.actionPage = 0;
+		limparTimerPreviewDominio();
+		limparTimerEfeitosDominio();
 		state.domainPreviewType = null;
+		state.domainEffectsStartAt = 0;
 		limparTodosTimersAnimacao();
 		limparCortesDominioSukuna();
 		limparSpritesTemporarios();
@@ -771,7 +903,10 @@
 			aplicarNovoEstado(resposta.state, false);
 			state.resolvendoAcao = false;
 			state.actionPage = 0;
+			limparTimerPreviewDominio();
+			limparTimerEfeitosDominio();
 			state.domainPreviewType = null;
+			state.domainEffectsStartAt = 0;
 			limparTodosTimersAnimacao();
 			limparSpritesTemporarios();
 			esconderPreviewSkill();

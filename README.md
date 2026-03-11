@@ -30,7 +30,7 @@ Abra no navegador:
 ## Personagens
 
 ### Sukuna
-- Vida 200, Ataque 25, Defesa 10, Energia 4000
+- Vida 200, Ataque 25, Energia 4000
 - Habilidades:
 	- Desmantelar (bleed por 1 turno, custo: 250)
 	- Kamino Fuga (burn por 1 turno, custo: 800)
@@ -39,12 +39,12 @@ Abra no navegador:
 - Regeneração por turno: 70
 
 ### Gojo
-- Vida 200, Ataque 15, Defesa 5, Energia 1000
+- Vida 200, Ataque 20, Energia 1000
 - Habilidades: Azul (custo: 100), Vazio Roxo (custo: 200), Reverse Energy (custo: 150), Domain (custo: 300)
 - Regeneração por turno: 50
 
 ### Sans
-- Vida 1, Ataque 30, Defesa 1, Energia 200
+- Vida 1, Ataque 30, Energia 200
 - Habilidades: Blaster (custo: 50), Parede de Ossos (custo: 40)
 - Regra especial: enquanto tiver energia, dano recebido é absorvido na energia
 - Regeneração por turno: 0
