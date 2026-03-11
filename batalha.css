@@ -151,13 +151,13 @@ body {
 .arena.domain-active {
   background:
     linear-gradient(rgba(20, 22, 32, 0.25), rgba(20, 22, 32, 0.25)),
-    url('./gojopasta/domainfinal.jpg') center/cover no-repeat;
+    url('./gojopasta/sprites/domainfinal.jpg') center/cover no-repeat;
 }
 
 .arena.sukuna-domain-active {
   background:
     linear-gradient(rgba(20, 22, 32, 0.25), rgba(20, 22, 32, 0.25)),
-    url('./sukunapasta/santuario.jpeg') center/cover no-repeat;
+    url('./sukunapasta/sprites/santuario.jpeg') center/cover no-repeat;
 }
 
 .arena-glow {
@@ -349,6 +349,17 @@ body {
   object-position: center bottom;
   border-radius: 0;
   background: transparent;
+}
+
+.fighter-action-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center 90%;
+  z-index: 6;
+  pointer-events: none;
 }
 
 .fighter.has-image .fighter-img {

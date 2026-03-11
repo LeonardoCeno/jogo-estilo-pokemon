@@ -5,11 +5,11 @@ require_once __DIR__ . '/../ExcecaoJogo.php';
 
 class Gojo extends Personagem {
 
-    const CUSTO_INFINITO = 80;
-    const CUSTO_REVERSE = 60;
-    const CUSTO_VAZIO_ROXO = 40;
-    const CUSTO_AZUL = 25;
-    const REGENERACAO_PROPRIA = 35;
+    const CUSTO_INFINITO = 300;
+    const CUSTO_REVERSE = 100;
+    const CUSTO_VAZIO_ROXO = 200;
+    const CUSTO_AZUL = 100;
+    const REGENERACAO_PROPRIA = 50;
 
     public function __construct(string $nome) {
         parent::__construct($nome, 200, 15, 5, 1000);
@@ -129,16 +129,16 @@ class Gojo extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './gojopasta/GOJOBASEFINAL.png',
+            'baseSprite' => './gojopasta/sprites/GOJOBASEFINAL.png',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/gojopancadafinalmenor.png',
+                            'sprite' => './gojopasta/sprites/gojopancadafinalmenor.png',
                             'durationMs' => 450,
                         ],
                         [
-                            'sprite' => './gojopasta/gojohitpt2.png',
+                            'sprite' => './gojopasta/sprites/gojohitpt2.png',
                             'durationMs' => 450,
                         ],
                     ],
@@ -146,7 +146,7 @@ class Gojo extends Personagem {
                 'Azul' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/gojoazulfinalreal.png',
+                            'sprite' => './gojopasta/sprites/gojoazulfinalreal.png',
                             'durationMs' => 2000,
                         ],
                     ],
@@ -154,11 +154,11 @@ class Gojo extends Personagem {
                 'Vazio Roxo' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/GOJOROXOFASE1FINAL.png',
+                            'sprite' => './gojopasta/sprites/GOJOROXOFASE1FINAL.png',
                             'durationMs' => 1000,
                         ],
                         [
-                            'sprite' => './gojopasta/gojoROXOFINALFINALVERDADEIRO.png',
+                            'sprite' => './gojopasta/sprites/gojoROXOFINALFINALVERDADEIRO.png',
                             'durationMs' => 1000,
                         ],
                     ],
@@ -166,7 +166,7 @@ class Gojo extends Personagem {
                 'Reverse Energy' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/gojoreversofinal.png',
+                            'sprite' => './gojopasta/sprites/gojoreversofinal.png',
                             'durationMs' => 1500,
                         ],
                     ],
@@ -174,7 +174,7 @@ class Gojo extends Personagem {
                 'Domain' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/gojodomainfinal.png',
+                            'sprite' => './gojopasta/sprites/gojodomainfinal.png',
                             'durationMs' => 2000,
                         ],
                     ],
@@ -184,7 +184,7 @@ class Gojo extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/gojoblockrealreal.png',
+                            'sprite' => './gojopasta/sprites/gojoblockrealreal.png',
                             'durationMs' => 1200,
                         ],
                     ],

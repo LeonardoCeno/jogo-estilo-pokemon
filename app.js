@@ -200,10 +200,20 @@
 		state.spriteTemporario.player2 = null;
 	}
 
+	function limparOverlaysFighter(lado) {
+		const fighter = lado === "player1" ? els.fighters.p1.root : els.fighters.p2.root;
+		if (!fighter) {
+			return;
+		}
+
+		fighter.querySelectorAll(".fighter-action-overlay").forEach((el) => el.remove());
+	}
+
 	function limparTimersAnimacao(lado) {
 		const timers = state.animationTimers[lado] || [];
 		timers.forEach((timerId) => clearTimeout(timerId));
 		state.animationTimers[lado] = [];
+		limparOverlaysFighter(lado);
 	}
 
 	function limparTodosTimersAnimacao() {
@@ -363,6 +373,28 @@
 		return obterFramesAnimacao(chaveJogador, "actions", nomeAcao);
 	}
 
+	function obterOverlaysAnimacaoAcao(chaveJogador, nomeAcao) {
+		const server = state.serverState;
+		if (!server || !server[chaveJogador]) {
+			return [];
+		}
+
+		const actionConfig = server[chaveJogador].visual?.actions?.[nomeAcao];
+		const overlays = Array.isArray(actionConfig?.overlays) ? actionConfig.overlays : [];
+
+		return overlays
+			.filter((overlay) => overlay && typeof overlay.sprite === "string" && overlay.sprite.trim() !== "")
+			.map((overlay) => ({
+				target: overlay.target === "self" ? "self" : "opponent",
+				sprite: overlay.sprite,
+				startMs: Number(overlay.startMs) > 0 ? Number(overlay.startMs) : 0,
+				durationMs: Number(overlay.durationMs) > 0 ? Number(overlay.durationMs) : 0,
+				x: Number.isFinite(Number(overlay.x)) ? Number(overlay.x) : 0,
+				y: Number.isFinite(Number(overlay.y)) ? Number(overlay.y) : 0,
+				scale: Number(overlay.scale) > 0 ? Number(overlay.scale) : 1,
+			}));
+	}
+
 	function obterFramesReacaoDefesa(chaveJogador) {
 		return obterFramesAnimacao(chaveJogador, "reactions", "defendingHit");
 	}
@@ -403,6 +435,50 @@
 		});
 
 		return acumulado > 0 ? acumulado : duracaoPadrao;
+	}
+
+	function executarOverlaysAnimacao(atacanteKey, overlays) {
+		if (!Array.isArray(overlays) || overlays.length === 0) {
+			return 0;
+		}
+
+		let tempoTotal = 0;
+
+		overlays.forEach((overlay) => {
+			const alvoKey = overlay.target === "self"
+				? atacanteKey
+				: (atacanteKey === "p1" ? "p2" : "p1");
+			const ladoAlvo = obterChaveLado(alvoKey);
+			const fighter = ladoAlvo === "player1" ? els.fighters.p1.root : els.fighters.p2.root;
+
+			if (!fighter) {
+				return;
+			}
+
+			const inicio = overlay.startMs;
+			const duracao = overlay.durationMs;
+			tempoTotal = Math.max(tempoTotal, inicio + duracao);
+
+			const timerInicio = setTimeout(() => {
+				const overlayEl = document.createElement("img");
+				overlayEl.className = "fighter-action-overlay";
+				overlayEl.src = overlay.sprite;
+				overlayEl.alt = "";
+				overlayEl.setAttribute("aria-hidden", "true");
+				overlayEl.style.transform = `translate(${overlay.x}px, ${overlay.y}px) scale(${overlay.scale})`;
+				fighter.appendChild(overlayEl);
+
+				const timerFim = setTimeout(() => {
+					overlayEl.remove();
+				}, duracao);
+
+				state.animationTimers[ladoAlvo].push(timerFim);
+			}, inicio);
+
+			state.animationTimers[ladoAlvo].push(timerInicio);
+		});
+
+		return tempoTotal;
 	}
 
 	function setBotoesAcaoHabilitados(habilitado) {
@@ -513,6 +589,7 @@
 		const nomeAcao = acao.nomeSprite || acao.nome;
 		const tipoPreviewDominio = obterTipoPreviewDominio(atacanteKey, nomeAcao);
 		const framesAnimacao = obterFramesAnimacaoAcao(atacanteKey, nomeAcao);
+		const overlaysAnimacao = obterOverlaysAnimacaoAcao(atacanteKey, nomeAcao);
 		const defensorEstaDefendendo = state.serverState[defensorKey]?.defendendo === true;
 		const framesReacaoDefesa = acao.targetsOpponent && defensorEstaDefendendo
 			? obterFramesReacaoDefesa(defensorKey)
@@ -528,7 +605,8 @@
 
 		const duracaoAtaque = executarAnimacaoFrames(ladoAtacante, framesAnimacao, 0);
 		const duracaoDefesa = executarAnimacaoFrames(ladoDefensor, framesReacaoDefesa, 0);
-		const tempoResolucao = Math.max(duracaoAtaque, duracaoDefesa);
+		const duracaoOverlays = executarOverlaysAnimacao(atacanteKey, overlaysAnimacao);
+		const tempoResolucao = Math.max(duracaoAtaque, duracaoDefesa, duracaoOverlays);
 
 		try {
 			await esperar(tempoResolucao);
