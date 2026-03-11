@@ -186,6 +186,18 @@ body {
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
 }
 
+.arena-energy-beam {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: left center;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(50, 255, 120, 0.95), rgba(180, 255, 210, 0.8));
+  box-shadow:
+    0 0 12px rgba(70, 255, 140, 0.9),
+    0 0 24px rgba(70, 255, 140, 0.6);
+}
+
 .domain-cut {
   position: absolute;
   height: auto;

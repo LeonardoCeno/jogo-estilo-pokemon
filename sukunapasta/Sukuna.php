@@ -113,7 +113,7 @@ class Sukuna extends Personagem {
 
         $danoBleed = (int) ceil($danoReal * 0.50);
         if ($danoBleed > 0) {
-            $alvo->aplicarSangramento($danoBleed, 4);
+            $alvo->aplicarSangramento($danoBleed, 3);
         }
 
         $mensagem = $this->formatarMensagemAcaoComAlvo("Domain", $alvo, $vidaAntes, $danoReal);
@@ -255,7 +255,7 @@ class Sukuna extends Personagem {
                             'mode' => 'projectile',
                             'target' => 'opponent',
                             'sprite' => './sukunapasta/sprites/FUGA.png',
-                            'startMs' => 2300,
+                            'startMs' => 2200,
                             'durationMs' => 900,
                             'sizePx' => 280,
                             'frontOffsetPx' => 130,

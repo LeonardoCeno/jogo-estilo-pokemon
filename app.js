@@ -500,11 +500,23 @@
 		const overlays = Array.isArray(actionConfig?.overlays) ? actionConfig.overlays : [];
 
 		return overlays
-			.filter((overlay) => overlay && typeof overlay.sprite === "string" && overlay.sprite.trim() !== "")
+			.filter((overlay) => {
+				if (!overlay) {
+					return false;
+				}
+
+				if (overlay.mode === "beam") {
+					return true;
+				}
+
+				return typeof overlay.sprite === "string" && overlay.sprite.trim() !== "";
+			})
 			.map((overlay) => ({
-				mode: overlay.mode === "projectile" ? "projectile" : "attached",
+				mode: overlay.mode === "projectile"
+					? "projectile"
+					: (overlay.mode === "beam" ? "beam" : "attached"),
 				target: overlay.target === "self" ? "self" : "opponent",
-				sprite: overlay.sprite,
+				sprite: typeof overlay.sprite === "string" ? overlay.sprite : "",
 				startMs: Number(overlay.startMs) > 0 ? Number(overlay.startMs) : 0,
 				durationMs: Number(overlay.durationMs) > 0 ? Number(overlay.durationMs) : 0,
 				x: Number.isFinite(Number(overlay.x)) ? Number(overlay.x) : 0,
@@ -513,6 +525,7 @@
 				sizePx: Number(overlay.sizePx) > 0 ? Number(overlay.sizePx) : 260,
 				frontOffsetPx: Number.isFinite(Number(overlay.frontOffsetPx)) ? Number(overlay.frontOffsetPx) : 0,
 				projectileAngleDeg: Number.isFinite(Number(overlay.projectileAngleDeg)) ? Number(overlay.projectileAngleDeg) : 0,
+				thicknessPx: Number(overlay.thicknessPx) > 0 ? Number(overlay.thicknessPx) : 26,
 				startOffsetX: Number.isFinite(Number(overlay.startOffsetX)) ? Number(overlay.startOffsetX) : 0,
 				startOffsetY: Number.isFinite(Number(overlay.startOffsetY)) ? Number(overlay.startOffsetY) : 0,
 				endOffsetX: Number.isFinite(Number(overlay.endOffsetX)) ? Number(overlay.endOffsetX) : 0,
@@ -596,7 +609,7 @@
 			const duracao = overlay.durationMs;
 			tempoTotal = Math.max(tempoTotal, inicio + duracao);
 
-			if (overlay.mode === "projectile") {
+			if (overlay.mode === "projectile" || overlay.mode === "beam") {
 				const fighterOrigem = atacanteKey === "p1" ? els.fighters.p1.root : els.fighters.p2.root;
 				const fighterAlvo = alvoKey === "p1" ? els.fighters.p1.root : els.fighters.p2.root;
 
@@ -616,8 +629,36 @@
 				const origemY = (origemRect.top + origemRect.height / 2) - arenaRect.top + overlay.startOffsetY;
 				const alvoX = (alvoRect.left + alvoRect.width / 2) - arenaRect.left + overlay.endOffsetX;
 				const alvoY = (alvoRect.top + alvoRect.height / 2) - arenaRect.top + overlay.endOffsetY;
+				const deltaX = alvoX - origemX;
+				const deltaY = alvoY - origemY;
+				const distancia = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+				const anguloAuto = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
 
 				const timerInicioProjetil = setTimeout(() => {
+					if (overlay.mode === "beam") {
+						const beamEl = document.createElement("div");
+						beamEl.className = "arena-energy-beam";
+						beamEl.setAttribute("aria-hidden", "true");
+						beamEl.style.left = `${origemX}px`;
+						beamEl.style.top = `${origemY}px`;
+						beamEl.style.height = `${overlay.thicknessPx}px`;
+						beamEl.style.width = "0px";
+						beamEl.style.transform = `translate(0, -50%) rotate(${anguloAuto}deg)`;
+						beamEl.style.transition = `width ${duracao}ms ease-out`;
+						els.arena?.appendChild(beamEl);
+
+						requestAnimationFrame(() => {
+							beamEl.style.width = `${distancia}px`;
+						});
+
+						const timerFimBeam = setTimeout(() => {
+							beamEl.remove();
+						}, duracao);
+
+						state.animationTimers[ladoAlvo].push(timerFimBeam);
+						return;
+					}
+
 					const projectileEl = document.createElement("img");
 					projectileEl.className = "arena-action-overlay";
 					projectileEl.src = overlay.sprite;

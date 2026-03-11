@@ -6,6 +6,7 @@ require_once __DIR__ . '/Personagem.php';
 require_once __DIR__ . '/sukunapasta/Sukuna.php';
 require_once __DIR__ . '/gojopasta/Gojo.php';
 require_once __DIR__ . '/sanspasta/Sans.php';
+require_once __DIR__ . '/ulquiorrapasta/ulquiorra.php';
 require_once __DIR__ . '/ExcecaoJogo.php';
 
 class GameService {
@@ -27,6 +28,7 @@ class GameService {
             'sukuna' => Sukuna::class,
             'gojo' => Gojo::class,
             'sans' => Sans::class,
+            'ulquiorra' => Ulquiorra::class,
         ];
     }
 
