@@ -8,7 +8,7 @@ class Miku extends Personagem {
     const CUSTO_MY_VOICE = 120;
     const CUSTO_MIKU_BEEAM = 90;
     const CUSTO_MAGIC = 130;
-    const CURA_MIKUPOWER = 50;
+    const CURA_MIKUPOWER = 80;
     const DANO_MY_VOICE = 60;
     const DANO_MIKU_BEEAM = 120;
     const DANO_MAGIC = 80;
@@ -84,7 +84,7 @@ class Miku extends Personagem {
             'MAGIC!' => 'Causa 80 de dano. Custo: ' . self::CUSTO_MAGIC . ' energia.',
             'Miku BEEAM' => 'Causa 70 de dano. Custo: ' . self::CUSTO_MIKU_BEEAM . ' energia.',
             'MY VOICE' => 'Causa 60 de dano. Custo: ' . self::CUSTO_MY_VOICE . ' energia.',
-            'mikupower' => 'Regenera 50 de vida. Custo: ' . self::CUSTO_MIKUPOWER . ' energia.',
+            'mikupower' => 'Regenera 80 de vida. Custo: ' . self::CUSTO_MIKUPOWER . ' energia.',
         ]);
     }
 
