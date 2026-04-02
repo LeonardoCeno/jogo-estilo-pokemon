@@ -66,7 +66,7 @@ class Sukuna extends Personagem {
 
     public function reverseEnergy(): string {
         $this->consumirEnergia(self::CUSTO_REVERSE);
-        $this->curarVida(50);
+        $this->curarVida(70);
 
         return $this->formatarMensagemAcaoSemAlvo("Reverse Energy");
     }

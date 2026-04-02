@@ -142,7 +142,7 @@ abstract class Personagem {
     }
 
     protected function tentouDesviarAtaque(): bool {
-        return random_int(1, 100) <= 5;
+        return random_int(1, 100) <= 10;
     }
 
     protected function tentouCriticoAtaque(): bool {
