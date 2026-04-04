@@ -78,10 +78,12 @@ class GameService {
         $catalogo = [];
 
         foreach (self::getClassMap() as $key => $className) {
+            $personagem = new $className('_');
+            $visual = $personagem->getConfiguracaoVisual();
             $catalogo[] = [
-                'key' => $key,
-                'class' => $className,
-                'description' => $className::getDescricao(),
+                'key'          => $key,
+                'label'        => (new \ReflectionClass($className))->getShortName(),
+                'selectSprite' => $visual['selectSprite'] ?? $visual['baseSprite'] ?? null,
             ];
         }
 

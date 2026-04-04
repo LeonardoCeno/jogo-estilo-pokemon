@@ -131,6 +131,7 @@ class Sukuna extends Personagem {
     public function getConfiguracaoVisual(): array {
         return [
             'baseSprite' => './assets/sukuna/sprites/sukunabasefinal.png',
+            'selectSprite' => './assets/sukuna/sprites/sukunaicon.jpg',
             'winImage' => './assets/sukuna/sprites/sukunawin.jpg',
             'actions' => [
                 'Ataque' => [

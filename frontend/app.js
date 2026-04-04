@@ -222,6 +222,31 @@ import { createAnimationController } from "./battle-animations.js";
 		onActionSelected: processarAcaoComAnimacao,
 	});
 
+	function buildCharPickers(catalog) {
+		document.querySelectorAll(".char-picker").forEach((picker) => {
+			const defaultKey = document.getElementById(picker.dataset.for).value;
+			picker.innerHTML = catalog
+				.map(
+					(c) =>
+						`<button type="button" class="char-option${c.key === defaultKey ? " is-selected" : ""}" data-value="${c.key}">` +
+						`<img src="${c.selectSprite}" alt="${c.label}" />` +
+						`<span>${c.label}</span></button>`
+				)
+				.join("");
+		});
+	}
+
+	els.setupPanel.addEventListener("click", (e) => {
+		const opt = e.target.closest(".char-option");
+		if (!opt) return;
+		const picker = opt.closest(".char-picker");
+		picker.querySelectorAll(".char-option").forEach((b) => b.classList.remove("is-selected"));
+		opt.classList.add("is-selected");
+		document.getElementById(picker.dataset.for).value = opt.dataset.value;
+	});
+
+	chamarApi("catalog").then((data) => buildCharPickers(data.catalog ?? []));
+
 	els.startBtn.addEventListener("click", iniciar);
 	els.playAgainBtn.addEventListener("click", resetarParaSetup);
 	ui.adicionarLog("Configure os jogadores e clique em INICIAR BATALHA.");

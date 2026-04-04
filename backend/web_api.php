@@ -109,6 +109,13 @@ try {
             executarAcao($input);
             break;
 
+        case 'catalog':
+            responder([
+                'ok'      => true,
+                'catalog' => GameService::getCharacterCatalog(),
+            ]);
+            break;
+
         default:
             throw new EntradaInvalidaException();
     }

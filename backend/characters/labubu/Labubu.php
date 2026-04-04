@@ -62,6 +62,7 @@ class Labubu extends Personagem {
 	public function getConfiguracaoVisual(): array {
 		return [
 			'baseSprite' => './assets/labubu/sprites/LABUBU.png',
+			'selectSprite' => './assets/labubu/sprites/labubuicon.jpg',
             'winImage' => './assets/labubu/sprites/labubufarm.png',
 			'actions' => [
 				'Ataque' => [
