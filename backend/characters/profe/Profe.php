@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Profe extends Personagem {
 
@@ -75,17 +75,17 @@ class Profe extends Personagem {
 
 	public function getConfiguracaoVisual(): array {
 		return [
-			'baseSprite' => './profepasta/sprites/smurfprofe.png',
-			'winImage' => './profepasta/sprites/WINWIN.png',
+			'baseSprite' => './assets/profe/sprites/smurfprofe.png',
+			'winImage' => './assets/profe/sprites/WINWIN.png',
 			'actions' => [
 				'Ataque' => [
 					'frames' => [
 						[
-							'sprite' => './profepasta/sprites/PANCADA.png',
+							'sprite' => './assets/profe/sprites/PANCADA.png',
 							'durationMs' => 550,
 						],
 						[
-							'sprite' => './profepasta/sprites/PANCADADOIS.png',
+							'sprite' => './assets/profe/sprites/PANCADADOIS.png',
 							'durationMs' => 550,
 						],
 					],
@@ -93,7 +93,7 @@ class Profe extends Personagem {
 				'Red bill' => [
 					'frames' => [
 						[
-							'sprite' => './profepasta/sprites/redbil.png',
+							'sprite' => './assets/profe/sprites/redbil.png',
 							'durationMs' => 700,
 						],
 					],
@@ -101,11 +101,11 @@ class Profe extends Personagem {
 				'Apelação' => [
 					'frames' => [
 						[
-							'sprite' => './profepasta/sprites/THELAST.png',
+							'sprite' => './assets/profe/sprites/THELAST.png',
 							'durationMs' => 700,
 						],
 						[
-							'sprite' => './profepasta/sprites/ATIRO.png',
+							'sprite' => './assets/profe/sprites/ATIRO.png',
 							'durationMs' => 700,
 						],
 					],
@@ -113,7 +113,7 @@ class Profe extends Personagem {
 						[
 							'mode' => 'projectile',
 							'target' => 'opponent',
-							'sprite' => './profepasta/sprites/sla.webp',
+							'sprite' => './assets/profe/sprites/sla.webp',
 							'startMs' => 700,
 							'durationMs' => 200,
 							'sizePx' => 40,
@@ -129,11 +129,11 @@ class Profe extends Personagem {
 				'VibeCode' => [
 					'frames' => [
 						[
-							'sprite' => './profepasta/sprites/PROGRAMA.png',
+							'sprite' => './assets/profe/sprites/PROGRAMA.png',
 							'durationMs' => 750,
 						],
 						[
-							'sprite' => './profepasta/sprites/PROGRAMAPRIME.png',
+							'sprite' => './assets/profe/sprites/PROGRAMAPRIME.png',
 							'durationMs' => 700,
 						],
 					],
@@ -141,7 +141,7 @@ class Profe extends Personagem {
 						[
 							'mode' => 'projectile',
 							'target' => 'opponent',
-							'sprite' => './profepasta/sprites/DOCKERR.png',
+							'sprite' => './assets/profe/sprites/DOCKERR.png',
 							'startMs' => 800,
 							'durationMs' => 900,
 							'sizePx' => 200,
@@ -155,7 +155,7 @@ class Profe extends Personagem {
                         [
 							'mode' => 'projectile',
 							'target' => 'opponent',
-							'sprite' => './profepasta/sprites/LINUXX.png',
+							'sprite' => './assets/profe/sprites/LINUXX.png',
 							'startMs' => 1000,
 							'durationMs' => 900,
 							'sizePx' => 200,
@@ -169,7 +169,7 @@ class Profe extends Personagem {
                         [
 							'mode' => 'projectile',
 							'target' => 'opponent',
-							'sprite' => './profepasta/sprites/gpt.png',
+							'sprite' => './assets/profe/sprites/gpt.png',
 							'startMs' => 1200,
 							'durationMs' => 900,
 							'sizePx' => 200,
@@ -187,7 +187,7 @@ class Profe extends Personagem {
 				'defendingHit' => [
 					'frames' => [
 						[
-							'sprite' => './profepasta/sprites/SAVIOR.png',
+							'sprite' => './assets/profe/sprites/SAVIOR.png',
 							'durationMs' => 1200,
 						],
 					],

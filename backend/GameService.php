@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Personagem.php';
-require_once __DIR__ . '/sukunapasta/Sukuna.php';
-require_once __DIR__ . '/gojopasta/Gojo.php';
-require_once __DIR__ . '/sanspasta/Sans.php';
-require_once __DIR__ . '/ulquiorrapasta/ulquiorra.php';
-require_once __DIR__ . '/mikupasta/miku.php';
-require_once __DIR__ . '/ubuntupasta/ubuntu.php';
-require_once __DIR__ . '/ubuntukiller/ubuntukiller.php';
-require_once __DIR__ . '/labubupasta/labubu.php';
-require_once __DIR__ . '/profepasta/profe.php';
+require_once __DIR__ . '/characters/sukuna/Sukuna.php';
+require_once __DIR__ . '/characters/gojo/Gojo.php';
+require_once __DIR__ . '/characters/sans/Sans.php';
+require_once __DIR__ . '/characters/ulquiorra/Ulquiorra.php';
+require_once __DIR__ . '/characters/miku/Miku.php';
+require_once __DIR__ . '/characters/ubuntu/Ubuntu.php';
+require_once __DIR__ . '/characters/ubuntukiller/UbuntuKiller.php';
+require_once __DIR__ . '/characters/labubu/Labubu.php';
+require_once __DIR__ . '/characters/profe/Profe.php';
 
 class GameService {
     private static function normalizarChaveJogador(?string $key): string {
@@ -118,15 +118,39 @@ class GameService {
         ];
     }
 
-    private static function aplicarEfeitoInfinityVoid(array &$game, string $currentKey): void {
+    private static function aplicarEfeitoParalisia(array &$game, string $currentKey, int $turnsToSkip, bool $activatesDomain): void {
         $targetKey = $currentKey === 'p1' ? 'p2' : 'p1';
 
-        $game['skipTurns'][$targetKey] = 2;
-        $game['domain'] = [
-            'turnsRemaining' => 3,
-            'casterKey' => $currentKey,
-            'targetKey' => $targetKey,
-            'extraCasterTurnPending' => true,
+        if ($turnsToSkip > 0) {
+            $game['skipTurns'][$targetKey] = $turnsToSkip;
+        }
+
+        if ($activatesDomain) {
+            $game['domain'] = [
+                'turnsRemaining' => $turnsToSkip + 1,
+                'casterKey' => $currentKey,
+                'targetKey' => $targetKey,
+                'extraCasterTurnPending' => true,
+            ];
+        }
+    }
+
+    private static function obterEfeitosSkill(Personagem $current, ?int $skillIndex): array {
+        $vazio = ['skipTurns' => 0, 'skipTurnsChance' => 0, 'activatesDomain' => false];
+
+        if ($skillIndex === null) {
+            return $vazio;
+        }
+
+        $skill = $current->getHabilidades()[$skillIndex] ?? null;
+        if ($skill === null) {
+            return $vazio;
+        }
+
+        return [
+            'skipTurns'       => (int)($skill['skipTurns'] ?? 0),
+            'skipTurnsChance' => (int)($skill['skipTurnsChance'] ?? 0),
+            'activatesDomain' => (bool)($skill['activatesDomain'] ?? false),
         ];
     }
 
@@ -226,51 +250,33 @@ class GameService {
 
     public static function buildAvailableActions(Personagem $current): array {
         $descricoes = $current->getDescricoesAcoes();
+        $actions = [];
 
-        if ($current instanceof Ubuntu) {
-            $actions = [];
-
-            foreach ($current->getHabilidades() as $index => $habilidade) {
-                $targetsOpponent = (bool)$habilidade['precisaAlvo'];
-                $actions[] = [
-                    'type' => 'skill',
-                    'label' => strtoupper((string)$habilidade['nome']),
-                    'skillName' => (string)$habilidade['nome'],
-                    'description' => (string)($descricoes[(string)$habilidade['nome']] ?? ''),
-                    'skillIndex' => $index,
-                    'targetsOpponent' => $targetsOpponent,
-                ];
-            }
-
-            return $actions;
-        }
-
-        $actions = [
-            [
+        if (!$current->usaSomenteHabilidades()) {
+            $actions[] = [
                 'type' => 'attack',
                 'label' => 'ATACAR',
                 'skillName' => 'Ataque',
                 'description' => (string)($descricoes['Ataque'] ?? ''),
                 'targetsOpponent' => true,
-            ],
-            [
+            ];
+            $actions[] = [
                 'type' => 'defend',
                 'label' => 'DEFENDER',
                 'skillName' => 'Defesa',
                 'description' => (string)($descricoes['Defesa'] ?? ''),
                 'targetsOpponent' => false,
-            ],
-        ];
+            ];
+        }
 
         foreach ($current->getHabilidades() as $index => $habilidade) {
-            $targetsOpponent = (bool)$habilidade['precisaAlvo'];
             $actions[] = [
                 'type' => 'skill',
                 'label' => strtoupper((string)$habilidade['nome']),
                 'skillName' => (string)$habilidade['nome'],
                 'description' => (string)($descricoes[(string)$habilidade['nome']] ?? ''),
                 'skillIndex' => $index,
-                'targetsOpponent' => $targetsOpponent,
+                'targetsOpponent' => (bool)$habilidade['precisaAlvo'],
             ];
         }
 
@@ -283,14 +289,9 @@ class GameService {
         }
 
         [, $current] = self::getCurrentAndOpponent($game);
-
-        if (!$current instanceof Ubuntu) {
-            return false;
-        }
-
         $metodoSkill = self::obterMetodoSkill($current, $skillIndex);
 
-        return $metodoSkill === 'erro';
+        return $metodoSkill !== null && $current->deveRetornarAoSetupAposTurno($metodoSkill);
     }
 
     public static function executeAction(Personagem $current, Personagem $opponent, string $actionType, ?int $skillIndex = null): string {
@@ -325,13 +326,17 @@ class GameService {
     public static function performTurn(array &$game, string $actionType, ?int $skillIndex = null): string {
         [$currentKey, $current, $opponent] = self::getCurrentAndOpponent($game);
 
-        $metodoSkill = $actionType === 'skill' ? self::obterMetodoSkill($current, $skillIndex) : null;
-        $infinityVoidExecutado = $metodoSkill === 'infinityVoid';
+        $efeitos = $actionType === 'skill' ? self::obterEfeitosSkill($current, $skillIndex) : ['skipTurns' => 0, 'skipTurnsChance' => 0, 'activatesDomain' => false];
 
         $message = self::executeAction($current, $opponent, $actionType, $skillIndex);
 
-        if ($infinityVoidExecutado) {
-            self::aplicarEfeitoInfinityVoid($game, $currentKey);
+        $turnosParalisados = $efeitos['skipTurns'];
+        if ($efeitos['skipTurnsChance'] > 0 && random_int(1, 100) <= $efeitos['skipTurnsChance']) {
+            $turnosParalisados = max($turnosParalisados, 1);
+        }
+
+        if ($turnosParalisados > 0 || $efeitos['activatesDomain']) {
+            self::aplicarEfeitoParalisia($game, $currentKey, $turnosParalisados, $efeitos['activatesDomain']);
         }
 
         self::consumirTurnoExtraDoCaster($game, $currentKey);
@@ -342,7 +347,7 @@ class GameService {
 
             $mensagemTurnosPulados = self::processarTurnosPulados($game);
             if ($mensagemTurnosPulados !== null) {
-                $message .= ' ' . $mensagemTurnosPulados;
+                $message .= " $mensagemTurnosPulados";
             }
         }
 
@@ -350,13 +355,11 @@ class GameService {
     }
 
     public static function exportCharacter(Personagem $character, string $label): array {
-        $reflection = new ReflectionClass($character);
-
         return [
             'label' => $label,
             'nome' => $character->getNome(),
-            'classe' => strtolower($reflection->getShortName()),
-            'classeNome' => $reflection->getShortName(),
+            'classe' => $character->getClasse(),
+            'classeNome' => $character->getClasseNome(),
             'vidaAtual' => $character->getVidaAtual(),
             'vidaMaxima' => $character->getVidaMaxima(),
             'energiaAtual' => $character->getEnergiaAtual(),

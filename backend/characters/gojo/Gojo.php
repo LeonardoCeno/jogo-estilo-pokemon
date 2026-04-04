@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Gojo extends Personagem {
 
@@ -79,7 +79,9 @@ class Gojo extends Personagem {
             [
                 "nome" => "Domain",
                 "metodo" => "infinityVoid",
-                "precisaAlvo" => false
+                "precisaAlvo" => false,
+                "skipTurns" => 2,
+                "activatesDomain" => true,
             ]
 
         ];
@@ -96,17 +98,17 @@ class Gojo extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './gojopasta/sprites/GOJOBASEFINAL.png',
-            'winImage' => './gojopasta/sprites/gojowin.jpg',
+            'baseSprite' => './assets/gojo/sprites/GOJOBASEFINAL.png',
+            'winImage' => './assets/gojo/sprites/gojowin.jpg',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/gojopancadafinalmenor.png',
+                            'sprite' => './assets/gojo/sprites/gojopancadafinalmenor.png',
                             'durationMs' => 450,
                         ],
                         [
-                            'sprite' => './gojopasta/sprites/gojohitpt2.png',
+                            'sprite' => './assets/gojo/sprites/gojohitpt2.png',
                             'durationMs' => 450,
                         ],
                     ],
@@ -114,18 +116,18 @@ class Gojo extends Personagem {
                 'Azul' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/gojoazulfinalreal.png',
+                            'sprite' => './assets/gojo/sprites/gojoazulfinalreal.png',
                             'durationMs' => 1500,
                         ],
                                                 [
-                            'sprite' => './gojopasta/sprites/gojoblockrealreal.png',
+                            'sprite' => './assets/gojo/sprites/gojoblockrealreal.png',
                             'durationMs' => 200,
                         ],
                     ],
                     'overlays' => [
                         [
                             'target' => 'opponent',
-                            'sprite' => './gojopasta/sprites/AZUL.png',
+                            'sprite' => './assets/gojo/sprites/AZUL.png',
                             'startMs' => 1500,
                             'durationMs' => 1000,
                             'x' => 0,
@@ -137,15 +139,15 @@ class Gojo extends Personagem {
                 'Vazio Roxo' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/GOJOROXOFASE1FINAL.png',
+                            'sprite' => './assets/gojo/sprites/GOJOROXOFASE1FINAL.png',
                             'durationMs' => 1000,
                         ],
                         [
-                            'sprite' => './gojopasta/sprites/gojoROXOFINALFINALVERDADEIRO.png',
+                            'sprite' => './assets/gojo/sprites/gojoROXOFINALFINALVERDADEIRO.png',
                             'durationMs' => 650,
                         ],
                         [
-                            'sprite' => './gojopasta/sprites/gojoroxolast.png',
+                            'sprite' => './assets/gojo/sprites/gojoroxolast.png',
                             'durationMs' => 400,
                         ],
                     ],
@@ -153,7 +155,7 @@ class Gojo extends Personagem {
                         [
                             'mode' => 'projectile',
                             'target' => 'opponent',
-                            'sprite' => './gojopasta/sprites/ROXO.png',
+                            'sprite' => './assets/gojo/sprites/ROXO.png',
                             'startMs' => 1700,
                             'durationMs' => 900,
                             'sizePx' => 280,
@@ -168,17 +170,17 @@ class Gojo extends Personagem {
                 'Reverse Energy' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/gojoreversofinal.png',
+                            'sprite' => './assets/gojo/sprites/gojoreversofinal.png',
                             'durationMs' => 1500,
                         ],
                     ],
                 ],
                 'Domain' => [
                     'domainDelayMs' => 1500,
-                    'domainArenaClass' => 'domain-active',
+                    'domainImage' => './assets/gojo/sprites/domainfinal.jpg',
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/gojodomainfinal.png',
+                            'sprite' => './assets/gojo/sprites/gojodomainfinal.png',
                             'durationMs' => 2000,
                         ],
                     ],
@@ -188,7 +190,7 @@ class Gojo extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './gojopasta/sprites/gojoblockrealreal.png',
+                            'sprite' => './assets/gojo/sprites/gojoblockrealreal.png',
                             'durationMs' => 1200,
                         ],
                     ],

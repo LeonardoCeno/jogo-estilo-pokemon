@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Sukuna extends Personagem {
 
@@ -130,17 +130,17 @@ class Sukuna extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './sukunapasta/sprites/sukunabasefinal.png',
-            'winImage' => './sukunapasta/sprites/sukunawin.jpg',
+            'baseSprite' => './assets/sukuna/sprites/sukunabasefinal.png',
+            'winImage' => './assets/sukuna/sprites/sukunawin.jpg',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/sukuachute1.png',
+                            'sprite' => './assets/sukuna/sprites/sukuachute1.png',
                             'durationMs' => 400,
                         ],
                         [
-                            'sprite' => './sukunapasta/sprites/sukunachute2real.png',
+                            'sprite' => './assets/sukuna/sprites/sukunachute2real.png',
                             'durationMs' => 300,
                         ],
                     ],
@@ -148,14 +148,14 @@ class Sukuna extends Personagem {
                 'Desmantelar' => [
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/sukuacleave.png',
+                            'sprite' => './assets/sukuna/sprites/sukuacleave.png',
                             'durationMs' => 1000,
                         ],
                     ],
                     'overlays' => [
                         [
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/CORTE1.png',
+                            'sprite' => './assets/sukuna/sprites/CORTE1.png',
                             'startMs' => 0,
                             'durationMs' => 100,
                             'x' => 0,
@@ -164,7 +164,7 @@ class Sukuna extends Personagem {
                         ],
                         [
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/CORTE2.png',
+                            'sprite' => './assets/sukuna/sprites/CORTE2.png',
                             'startMs' => 100,
                             'durationMs' => 200,
                             'x' => 0,
@@ -173,7 +173,7 @@ class Sukuna extends Personagem {
                         ],
                         [
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/CORTE1.png',
+                            'sprite' => './assets/sukuna/sprites/CORTE1.png',
                             'startMs' => 300,
                             'durationMs' => 200,
                             'x' => 0,
@@ -182,7 +182,7 @@ class Sukuna extends Personagem {
                         ],
                          [
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/CORTE2.png',
+                            'sprite' => './assets/sukuna/sprites/CORTE2.png',
                             'startMs' => 600,
                             'durationMs' => 170,
                             'x' => 0,
@@ -191,7 +191,7 @@ class Sukuna extends Personagem {
                         ],
                         [
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/CORTE1.png',
+                            'sprite' => './assets/sukuna/sprites/CORTE1.png',
                             'startMs' => 900,
                             'durationMs' => 200,
                             'x' => 0,
@@ -203,19 +203,19 @@ class Sukuna extends Personagem {
                 'Kamino Fuga' => [
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/sukunafuga1.png',
+                            'sprite' => './assets/sukuna/sprites/sukunafuga1.png',
                             'durationMs' => 400,
                         ],
                         [
-                            'sprite' => './sukunapasta/sprites/sukunafuga2.png',
+                            'sprite' => './assets/sukuna/sprites/sukunafuga2.png',
                             'durationMs' => 400,
                         ],
                         [
-                            'sprite' => './sukunapasta/sprites/FUGAFINAL.png',
+                            'sprite' => './assets/sukuna/sprites/FUGAFINAL.png',
                             'durationMs' => 1300,
                         ],
                         [
-                            'sprite' => './sukunapasta/sprites/sukunabasefinal.png',
+                            'sprite' => './assets/sukuna/sprites/sukunabasefinal.png',
                             'durationMs' => 100,
                         ],
                     ],
@@ -223,7 +223,7 @@ class Sukuna extends Personagem {
                         [
                             'mode' => 'projectile',
                             'target' => 'opponent',
-                            'sprite' => './sukunapasta/sprites/FUGA.png',
+                            'sprite' => './assets/sukuna/sprites/FUGA.png',
                             'startMs' => 2200,
                             'durationMs' => 500,
                             'sizePx' => 280,
@@ -239,18 +239,18 @@ class Sukuna extends Personagem {
                 'Reverse Energy' => [
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/REALSUKUNAREGEN.png',
+                            'sprite' => './assets/sukuna/sprites/REALSUKUNAREGEN.png',
                             'durationMs' => 1500,
                         ],
                     ],
                 ],
                 'Domain' => [
                     'domainDelayMs' => 1200,
-                    'domainArenaClass' => 'sukuna-domain-active',
+                    'domainImage' => './assets/sukuna/sprites/santuario.jpeg',
                     'domainCutsDelayMs' => 1000,
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/DOMAINSUKUNA.png',
+                            'sprite' => './assets/sukuna/sprites/DOMAINSUKUNA.png',
                             'durationMs' => 9000,
                         ],
                     ],
@@ -260,7 +260,7 @@ class Sukuna extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './sukunapasta/sprites/sukunadefreal.png',
+                            'sprite' => './assets/sukuna/sprites/sukunadefreal.png',
                             'durationMs' => 1200,
                         ],
                     ],

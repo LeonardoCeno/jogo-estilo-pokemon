@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class UbuntuKiller extends Personagem {
 
@@ -70,18 +70,18 @@ class UbuntuKiller extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './ubuntukiller/sprites/EUBASE.png',
-            'winImage' => './ubuntukiller/sprites/EUWIN.png',
-            'dodgeSprite' => './ubuntukiller/sprites/ESQUIVO.png',
+            'baseSprite' => './assets/ubuntukiller/sprites/EUBASE.png',
+            'winImage' => './assets/ubuntukiller/sprites/EUWIN.png',
+            'dodgeSprite' => './assets/ubuntukiller/sprites/ESQUIVO.png',
             'actions' => [
                 'ubuntubuxa' => [
                     'frames' => [
                         [
-                            'sprite' => './ubuntukiller/sprites/FOGOREAL.png',
+                            'sprite' => './assets/ubuntukiller/sprites/FOGOREAL.png',
                             'durationMs' => 1800,
                         ],
                         [
-                            'sprite' => './ubuntukiller/sprites/TIRO.png',
+                            'sprite' => './assets/ubuntukiller/sprites/TIRO.png',
                             'durationMs' => 1100,
                         ],
                     ],
@@ -91,7 +91,7 @@ class UbuntuKiller extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './ubuntukiller/sprites/euauratruemenor.png',
+                            'sprite' => './assets/ubuntukiller/sprites/euauratruemenor.png',
                             'durationMs' => 1200,
                         ],
                     ],

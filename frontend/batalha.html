@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arena de Turnos</title>
   <link rel="stylesheet" href="batalha.css" />
+  <script>
+    globalThis.__twind = {
+      theme: {
+        extend: {
+          colors: {
+            bg:          'var(--bg)',
+            'bg-soft':   'var(--bg-soft)',
+            panel:       'var(--panel)',
+            line:        'var(--line)',
+            'line-soft': 'var(--line-soft)',
+            text:        'var(--text)',
+            muted:       'var(--muted)',
+            accent:      'var(--accent)',
+            'accent-2':  'var(--accent-2)',
+            hp:          'var(--hp)',
+            'hp-danger': 'var(--hp-danger)',
+            energy:      'var(--energy)',
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://cdn.twind.style" crossorigin></script>
 </head>
 <body>
   <main class="battle-app">
@@ -56,7 +79,7 @@
       </div>
     </section>
 
-    <section class="battle-view hidden" id="battle-view">
+    <section class="battle-view is-hidden" id="battle-view">
       <div class="arena" aria-label="Campo de batalha">
         <div class="arena-glow"></div>
 
@@ -116,7 +139,7 @@
           <span>S</span>
         </div>
 
-        <div class="winner-overlay hidden" id="winner-overlay" aria-live="polite">
+        <div class="winner-overlay is-hidden" id="winner-overlay" aria-live="polite">
           <div class="winner-card">
             <img id="winner-sprite" class="winner-sprite" alt="Vencedor" />
             <p id="winner-text" class="winner-text">Jogador venceu!</p>
@@ -148,6 +171,6 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>

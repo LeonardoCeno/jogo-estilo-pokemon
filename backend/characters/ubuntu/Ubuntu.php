@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Ubuntu extends Personagem {
 
@@ -35,6 +35,14 @@ class Ubuntu extends Personagem {
 		return $this->erro($alvo);
 	}
 
+	public function usaSomenteHabilidades(): bool {
+		return true;
+	}
+
+	public function deveRetornarAoSetupAposTurno(string $metodo): bool {
+		return $metodo === 'erro';
+	}
+
 	public function getHabilidades(): array {
 		if (!$this->terminalAberto) {
 			return [
@@ -64,14 +72,14 @@ class Ubuntu extends Personagem {
 
 	public function getConfiguracaoVisual(): array {
 		return [
-			'baseSprite' => './ubuntupasta/sprites/ubuntuMALIGNO.png',
-			'winImage' => './ubuntupasta/sprites/ubuntuMALIGNO.png',
-			'errorSplash' => './ubuntupasta/sprites/ERROINSANO.avif',
+			'baseSprite' => './assets/ubuntu/sprites/ubuntuMALIGNO.png',
+			'winImage' => './assets/ubuntu/sprites/ubuntuMALIGNO.png',
+			'errorSplash' => './assets/ubuntu/sprites/ERROINSANO.avif',
 			'actions' => [
 				'abrir terminal' => [
 					'frames' => [
 						[
-							'sprite' => './ubuntupasta/sprites/ubuntuMALIGNO.png',
+							'sprite' => './assets/ubuntu/sprites/ubuntuMALIGNO.png',
 							'durationMs' => 500,
 						],
 					],
@@ -79,7 +87,7 @@ class Ubuntu extends Personagem {
 				'sudo apt install' => [
 					'frames' => [
 						[
-							'sprite' => './ubuntupasta/sprites/ubuntuMALIGNO.png',
+							'sprite' => './assets/ubuntu/sprites/ubuntuMALIGNO.png',
 							'durationMs' => 700,
 						],
 					],

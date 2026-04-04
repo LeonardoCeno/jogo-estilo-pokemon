@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Labubu extends Personagem {
 
@@ -61,17 +61,17 @@ class Labubu extends Personagem {
 
 	public function getConfiguracaoVisual(): array {
 		return [
-			'baseSprite' => './labubupasta/sprites/LABUBU.png',
-            'winImage' => './labubupasta/sprites/labubufarm.png',
+			'baseSprite' => './assets/labubu/sprites/LABUBU.png',
+            'winImage' => './assets/labubu/sprites/labubufarm.png',
 			'actions' => [
 				'Ataque' => [
 					'frames' => [
 						[
-							'sprite' => './labubupasta/sprites/labubo.png',
+							'sprite' => './assets/labubu/sprites/labubo.png',
 							'durationMs' => 450,
 						],
 						[
-							'sprite' => './labubupasta/sprites/labubo2.png',
+							'sprite' => './assets/labubu/sprites/labubo2.png',
 							'durationMs' => 350,
 						],
 					],
@@ -79,7 +79,7 @@ class Labubu extends Personagem {
 				'labuaura' => [
 					'frames' => [
 						[
-							'sprite' => './labubupasta/sprites/AURALUTRUETRUE.png',
+							'sprite' => './assets/labubu/sprites/AURALUTRUETRUE.png',
 							'durationMs' => 1900,
 						],
 					],
@@ -87,11 +87,11 @@ class Labubu extends Personagem {
                 'MorangodoAmor' => [
 					'frames' => [
 						[
-							'sprite' => './labubupasta/sprites/LANCE.png',
+							'sprite' => './assets/labubu/sprites/LANCE.png',
 							'durationMs' => 800,
 						],
                         [
-							'sprite' => './labubupasta/sprites/MORANGOLABUBU.png',
+							'sprite' => './assets/labubu/sprites/MORANGOLABUBU.png',
 							'durationMs' => 600,
 						],
 					],
@@ -99,7 +99,7 @@ class Labubu extends Personagem {
                         [
                             'mode' => 'projectile',
                             'target' => 'opponent',
-                            'sprite' => './labubupasta/sprites/AMORMORANGO.png',
+                            'sprite' => './assets/labubu/sprites/AMORMORANGO.png',
                             'startMs' => 1100,
                             'durationMs' => 500,
                             'sizePx' => 280,
@@ -117,7 +117,7 @@ class Labubu extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './labubupasta/sprites/DEFENDELABUBU.png',
+                            'sprite' => './assets/labubu/sprites/DEFENDELABUBU.png',
                             'durationMs' => 1200,
                         ],
                     ],

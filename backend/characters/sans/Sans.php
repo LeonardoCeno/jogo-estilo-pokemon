@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Sans extends Personagem {
 
@@ -74,14 +74,14 @@ class Sans extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './sanspasta/sprites/SANSBASEFINAL.png',
-            'winImage' => './sanspasta/sprites/sansrealista.jpg',
-            'dodgeSprite' => './sanspasta/sprites/SANSSKILL1FINAL.png',
+            'baseSprite' => './assets/sans/sprites/SANSBASEFINAL.png',
+            'winImage' => './assets/sans/sprites/sansrealista.jpg',
+            'dodgeSprite' => './assets/sans/sprites/SANSSKILL1FINAL.png',
             'actions' => [
                 'eeeeh' => [
                     'frames' => [
                         [
-                            'sprite' => './sanspasta/sprites/SANSKILL1FINAL.png',
+                            'sprite' => './assets/sans/sprites/SANSKILL1FINAL.png',
                             'durationMs' => 1000,
                         ],
                     ],

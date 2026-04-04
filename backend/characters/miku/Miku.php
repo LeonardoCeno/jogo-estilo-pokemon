@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Miku extends Personagem {
 
@@ -90,17 +90,17 @@ class Miku extends Personagem {
 
     public function getConfiguracaoVisual(): array {
         return [
-            'baseSprite' => './mikupasta/sprites/mikubase.png',
-            'winImage' => './mikupasta/sprites/mikuwin.png',
+            'baseSprite' => './assets/miku/sprites/mikubase.png',
+            'winImage' => './assets/miku/sprites/mikuwin.png',
             'actions' => [
                 'Ataque' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/mikuprebeamreal.png',
+                            'sprite' => './assets/miku/sprites/mikuprebeamreal.png',
                             'durationMs' => 400,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/ATAQUEREAALA.png',
+                            'sprite' => './assets/miku/sprites/ATAQUEREAALA.png',
                             'durationMs' => 400,
                         ],
                     ],
@@ -108,15 +108,15 @@ class Miku extends Personagem {
                 'MAGIC!' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/outro.png',
+                            'sprite' => './assets/miku/sprites/outro.png',
                             'durationMs' => 450,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/MAGIC2REAL.png',
+                            'sprite' => './assets/miku/sprites/MAGIC2REAL.png',
                             'durationMs' => 650,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/MAGIC3.png',
+                            'sprite' => './assets/miku/sprites/MAGIC3.png',
                             'durationMs' => 700,
                         ],
                     ],
@@ -124,7 +124,7 @@ class Miku extends Personagem {
                         [
                             'mode' => 'projectile',
                             'target' => 'opponent',
-                            'sprite' => './mikupasta/sprites/mag2.png',
+                            'sprite' => './assets/miku/sprites/mag2.png',
                             'startMs' => 500,
                             'durationMs' => 1000,
                             'sizePx' => 280,
@@ -138,7 +138,7 @@ class Miku extends Personagem {
                          [
                             'mode' => 'projectile',
                             'target' => 'opponent',
-                            'sprite' => './mikupasta/sprites/mag1.png',
+                            'sprite' => './assets/miku/sprites/mag1.png',
                             'startMs' => 1000,
                             'durationMs' => 1400,
                             'sizePx' => 280,
@@ -154,11 +154,11 @@ class Miku extends Personagem {
                 'Miku BEEAM' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/MIKUBEEAM1.png',
+                            'sprite' => './assets/miku/sprites/MIKUBEEAM1.png',
                             'durationMs' => 600,
                         ],
                          [
-                            'sprite' => './mikupasta/sprites/MIKUBEEAM2.png',
+                            'sprite' => './assets/miku/sprites/MIKUBEEAM2.png',
                             'durationMs' => 600,
                         ],
                     ],
@@ -181,26 +181,26 @@ class Miku extends Personagem {
                 'MY VOICE' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/mikuprebeamreal.png',
+                            'sprite' => './assets/miku/sprites/mikuprebeamreal.png',
                             'durationMs' => 600,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikugrito1real.png',
+                            'sprite' => './assets/miku/sprites/mikugrito1real.png',
                             'durationMs' => 500,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mukibeamtrue.png',
+                            'sprite' => './assets/miku/sprites/mukibeamtrue.png',
                             'durationMs' => 300,
                         ],
                          [
-                            'sprite' => './mikupasta/sprites/mikufinalbeamREAL.png',
+                            'sprite' => './assets/miku/sprites/mikufinalbeamREAL.png',
                             'durationMs' => 300,
                         ],
                     ],
                      'overlays' => [
                         [
                             'target' => 'opponent',
-                            'sprite' => './mikupasta/sprites/MIKUHEART.png',
+                            'sprite' => './assets/miku/sprites/MIKUHEART.png',
                             'startMs' => 1400,
                             'durationMs' => 400,
                             'x' => 0,
@@ -212,55 +212,55 @@ class Miku extends Personagem {
                 'mikupower' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/mikupower1.png',
+                            'sprite' => './assets/miku/sprites/mikupower1.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower2.png',
+                            'sprite' => './assets/miku/sprites/mikupower2.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower3.png',
+                            'sprite' => './assets/miku/sprites/mikupower3.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower4.png',
+                            'sprite' => './assets/miku/sprites/mikupower4.png',
                             'durationMs' => 140,
                         ],
                          [
-                            'sprite' => './mikupasta/sprites/mikupower1.png',
+                            'sprite' => './assets/miku/sprites/mikupower1.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower2.png',
+                            'sprite' => './assets/miku/sprites/mikupower2.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower3.png',
+                            'sprite' => './assets/miku/sprites/mikupower3.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower4.png',
+                            'sprite' => './assets/miku/sprites/mikupower4.png',
                             'durationMs' => 140,
                         ],
                                       [
-                            'sprite' => './mikupasta/sprites/mikupower4.png',
+                            'sprite' => './assets/miku/sprites/mikupower4.png',
                             'durationMs' => 140,
                         ],
                          [
-                            'sprite' => './mikupasta/sprites/mikupower1.png',
+                            'sprite' => './assets/miku/sprites/mikupower1.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower2.png',
+                            'sprite' => './assets/miku/sprites/mikupower2.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower3.png',
+                            'sprite' => './assets/miku/sprites/mikupower3.png',
                             'durationMs' => 140,
                         ],
                         [
-                            'sprite' => './mikupasta/sprites/mikupower4.png',
+                            'sprite' => './assets/miku/sprites/mikupower4.png',
                             'durationMs' => 140,
                         ],
                     ],
@@ -270,7 +270,7 @@ class Miku extends Personagem {
                 'defendingHit' => [
                     'frames' => [
                         [
-                            'sprite' => './mikupasta/sprites/defesamiku.png',
+                            'sprite' => './assets/miku/sprites/defesamiku.png',
                             'durationMs' => 1200,
                         ],
                     ],

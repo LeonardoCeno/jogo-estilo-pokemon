@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Personagem.php';
+require_once __DIR__ . '/../../Personagem.php';
 
 class Ulquiorra extends Personagem {
 
@@ -107,17 +107,17 @@ class Ulquiorra extends Personagem {
 
 	public function getConfiguracaoVisual(): array {
 		return [
-			'baseSprite' => './ulquiorrapasta/sprites/REALCIFERBASE.png',
-			'winImage' => './ulquiorrapasta/sprites/winulq.png',
+			'baseSprite' => './assets/ulquiorra/sprites/REALCIFERBASE.png',
+			'winImage' => './assets/ulquiorra/sprites/winulq.png',
 			'actions' => [
                   'Ataque' => [
                     'frames' => [
                         [
-                            'sprite' => './ulquiorrapasta/sprites/ciferhit1.png',
+                            'sprite' => './assets/ulquiorra/sprites/ciferhit1.png',
                             'durationMs' => 400,
                         ],
                         [
-                            'sprite' => './ulquiorrapasta/sprites/ciferhit2.png',
+                            'sprite' => './assets/ulquiorra/sprites/ciferhit2.png',
                             'durationMs' => 400,
                         ],
                     ],
@@ -125,11 +125,11 @@ class Ulquiorra extends Personagem {
 				'Cero' => [
 					'frames' => [
 						[
-							'sprite' => './ulquiorrapasta/sprites/cifercero1.png',
+							'sprite' => './assets/ulquiorra/sprites/cifercero1.png',
 							'durationMs' => 1000,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/cifercero2TRUE.png',
+							'sprite' => './assets/ulquiorra/sprites/cifercero2TRUE.png',
 							'durationMs' => 1000,
 						],
 					],
@@ -151,15 +151,15 @@ class Ulquiorra extends Personagem {
 				'cero oscuras' => [
 					'frames' => [
 						[
-							'sprite' => './ulquiorrapasta/sprites/preform.png',
+							'sprite' => './assets/ulquiorra/sprites/preform.png',
 							'durationMs' => 1000,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ciferfinalform.png',
+							'sprite' => './assets/ulquiorra/sprites/ciferfinalform.png',
 							'durationMs' => 1250,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ciferfinalcero.png',
+							'sprite' => './assets/ulquiorra/sprites/ciferfinalcero.png',
 							'durationMs' => 1100,
 						],
 					],
@@ -182,51 +182,51 @@ class Ulquiorra extends Personagem {
 				'Barrage' => [
 					'frames' => [
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage1.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage1.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage2.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage2.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/barrage.png',
+							'sprite' => './assets/ulquiorra/sprites/barrage.png',
 							'durationMs' => 150,
 						],
 												[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage1.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage1.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage2.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage2.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/barrage.png',
+							'sprite' => './assets/ulquiorra/sprites/barrage.png',
 							'durationMs' => 150,
 						],
 												[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage1.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage1.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage2.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage2.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/barrage.png',
+							'sprite' => './assets/ulquiorra/sprites/barrage.png',
 							'durationMs' => 150,
 						],
 												[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage1.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage1.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqbarrage2.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqbarrage2.png',
 							'durationMs' => 150,
 						],
 						[
-							'sprite' => './ulquiorrapasta/sprites/barrage.png',
+							'sprite' => './assets/ulquiorra/sprites/barrage.png',
 							'durationMs' => 150,
 						],
 					],
@@ -234,7 +234,7 @@ class Ulquiorra extends Personagem {
 				'Heal' => [
 					'frames' => [
 						[
-							'sprite' => './ulquiorrapasta/sprites/ulqregen.png',
+							'sprite' => './assets/ulquiorra/sprites/ulqregen.png',
 							'durationMs' => 1500,
 						],
 					],
@@ -244,7 +244,7 @@ class Ulquiorra extends Personagem {
 				'defendingHit' => [
 					'frames' => [
 						[
-							'sprite' => './ulquiorrapasta/sprites/ciferdef.png',
+							'sprite' => './assets/ulquiorra/sprites/ciferdef.png',
 							'durationMs' => 1200,
 						],
 					],

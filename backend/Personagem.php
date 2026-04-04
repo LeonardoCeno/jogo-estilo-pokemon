@@ -304,6 +304,24 @@ abstract class Personagem {
         ];
     }
 
+    public function getClasse(): string {
+        $ref = new ReflectionClass($this);
+        return strtolower($ref->getShortName());
+    }
+
+    public function getClasseNome(): string {
+        $ref = new ReflectionClass($this);
+        return $ref->getShortName();
+    }
+
+    public function usaSomenteHabilidades(): bool {
+        return false;
+    }
+
+    public function deveRetornarAoSetupAposTurno(string $metodo): bool {
+        return false;
+    }
+
     public function getConfiguracaoVisual(): array {
         return [
             'baseSprite' => null,
