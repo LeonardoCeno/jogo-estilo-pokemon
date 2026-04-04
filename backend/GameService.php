@@ -154,22 +154,6 @@ class GameService {
         ];
     }
 
-    private static function consumirTurnoDominioAoPular(array &$game, string $currentKey): void {
-        $domainTarget = (string)($game['domain']['targetKey'] ?? '');
-        $domainTurns = (int)($game['domain']['turnsRemaining'] ?? 0);
-
-        if ($domainTarget !== $currentKey || $domainTurns <= 0) {
-            return;
-        }
-
-        $novoValor = $domainTurns - 1;
-        $game['domain']['turnsRemaining'] = $novoValor;
-
-        if ($novoValor <= 0) {
-            self::resetarDomain($game);
-        }
-    }
-
     private static function consumirTurnoExtraDoCaster(array &$game, string $currentKey): void {
         $domainTurns = (int)($game['domain']['turnsRemaining'] ?? 0);
         $domainCaster = (string)($game['domain']['casterKey'] ?? '');
@@ -208,7 +192,15 @@ class GameService {
             $jogadorPulando = self::obterJogadorPorChave($game, $currentKey);
 
             $game['skipTurns'][$currentKey] = $skipAtual - 1;
-            self::consumirTurnoDominioAoPular($game, $currentKey);
+
+            $domainTurns = (int)($game['domain']['turnsRemaining'] ?? 0);
+            if ((string)($game['domain']['targetKey'] ?? '') === $currentKey && $domainTurns > 0) {
+                $novoValor = $domainTurns - 1;
+                $game['domain']['turnsRemaining'] = $novoValor;
+                if ($novoValor <= 0) {
+                    self::resetarDomain($game);
+                }
+            }
 
             $mensagens[] = $jogadorPulando->getNome() . ' teve o turno pulado por Domain.';
 
