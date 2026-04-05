@@ -147,7 +147,7 @@ import { createAnimationController } from "./battle-animations.js";
 			);
 			state.anim = animacaoAtiva;
 
-			await animations.esperar(animacaoAtiva.duration);
+			await animations.wait(animacaoAtiva.duration);
 			animations.cancelAnimation();
 
 			if (resposta.state) {
@@ -243,6 +243,10 @@ import { createAnimationController } from "./battle-animations.js";
 		});
 	}
 
+	chamarApi("catalog")
+		.then((data) => construirSeletoresPersonagem(data.catalog ?? []))
+		.catch((erro) => ui.adicionarLog(`Erro ao carregar personagens: ${erro.message}`));
+
 	els.setupPanel.addEventListener("click", (e) => {
 		const opt = e.target.closest(".char-option");
 		if (!opt) return;
@@ -251,10 +255,6 @@ import { createAnimationController } from "./battle-animations.js";
 		opt.classList.add("is-selected");
 		document.getElementById(picker.dataset.for).value = opt.dataset.value;
 	});
-
-	chamarApi("catalog")
-		.then((data) => construirSeletoresPersonagem(data.catalog ?? []))
-		.catch((erro) => ui.adicionarLog(`Erro ao carregar personagens: ${erro.message}`));
 
 	els.startBtn.addEventListener("click", iniciar);
 	els.playAgainBtn.addEventListener("click", resetarParaSetup);

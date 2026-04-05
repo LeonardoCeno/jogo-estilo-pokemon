@@ -22,17 +22,15 @@ abstract class Personagem {
     const REGENERACAO_ENERGIA = 10;
 
     public function __construct(string $nome, int $vida, int $ataque, int $energia) {
-
         $this->nome = $nome;
-
         $this->vidaMaxima = $vida;
         $this->vidaAtual = $vida;
-
         $this->ataque = $ataque;
-
         $this->energiaMaxima = $energia;
         $this->energiaAtual = $energia;
     }
+
+    // ── Getters ──────────────────────────────────────────────────────────
 
     public function getNome(): string {
         return $this->nome;
@@ -66,25 +64,14 @@ abstract class Personagem {
         return $this->vidaAtual > 0;
     }
 
-    public function receberDano(int $danoReal): void {
-        $tipoDano = $this->consumirTipoDanoRecebido();
-        $danoReal = $this->aplicarReducaoDanoDefesa($danoReal);
+    // ── Turno ────────────────────────────────────────────────────────────
 
-        if ($danoReal <= 0) {
-            return;
-        }
-
-        $this->registrarTipoDanoRecebido($tipoDano);
-
-        $this->vidaAtual -= $danoReal;
-
-        if ($this->vidaAtual < 0) {
-            $this->vidaAtual = 0;
-        }
+    public function iniciarTurno(): void {
+        $this->defendendo = false;
+        $this->regenerarEnergia();
     }
 
     public function regenerarEnergia(): void {
-
         $this->energiaAtual = min(
             $this->energiaMaxima,
             $this->energiaAtual + $this->getRegeneracaoEnergia()
@@ -95,57 +82,10 @@ abstract class Personagem {
         return self::REGENERACAO_ENERGIA;
     }
 
-    public function iniciarTurno(): void {
-        $this->defendendo = false;
-        $this->regenerarEnergia();
-    }
-
-    protected function aplicarReducaoDanoDefesa(int $danoReal): int {
-        if ($danoReal <= 0) {
-            return 0;
-        }
-
-        if (!$this->defendendo) {
-            return $danoReal;
-        }
-
-        return (int) ceil($danoReal * 0.5);
-    }
-
-    public function processarEfeitosContinuosFimTurno(): void {
-        $this->processarSangramento();
-        $this->processarQueimadura();
-    }
+    // ── Ações ────────────────────────────────────────────────────────────
 
     public function atacar(Personagem $alvo): string {
         return $this->executarAtaqueDireto($alvo, "Ataque", max(0, $this->ataque))['mensagem'];
-    }
-
-    protected function sorteouDesvio(): bool {
-        return random_int(1, 100) <= 10;
-    }
-
-    protected function sorteouCritico(): bool {
-        return random_int(1, 100) <= 5;
-    }
-
-    protected function formatarMensagemAcaoComAlvo(
-        string $nomeAcao,
-        Personagem $alvo,
-        int $vidaAntes,
-        int $danoReal
-    ): string {
-        $vidaDepois = $alvo->getVidaAtual();
-
-        if ($vidaDepois === $vidaAntes || $danoReal <= 0) {
-            return "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, mas {$alvo->getNome()} desviou!";
-        }
-
-        return "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, causando {$danoReal} de dano.";
-    }
-
-    protected function formatarMensagemAcaoSemAlvo(string $nomeAcao): string {
-        return "{$this->nome} usou {$nomeAcao}.";
     }
 
     public function defender(): string {
@@ -175,23 +115,25 @@ abstract class Personagem {
         }
     }
 
+    // ── Engine de combate ────────────────────────────────────────────────
+
     protected function executarAtaqueDireto(Personagem $alvo, string $nomeAcao, int $dano): array {
         if ($alvo->sorteouDesvio()) {
             return [
-                'acertou' => false,
-                'vidaAntes' => $alvo->getVidaAtual(),
-                'danoReal' => 0,
+                'acertou'    => false,
+                'vidaAntes'  => $alvo->getVidaAtual(),
+                'danoReal'   => 0,
                 'foiCritico' => false,
-                'mensagem' => "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, mas {$alvo->getNome()} desviou!",
+                'mensagem'   => "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, mas {$alvo->getNome()} desviou!",
             ];
         }
 
         $vidaAntes = $alvo->getVidaAtual();
-        $danoReal = max(0, $dano);
+        $danoReal  = max(0, $dano);
         $foiCritico = $this->sorteouCritico();
 
         if ($foiCritico) {
-                $danoReal = (int) ceil($danoReal * 2);
+            $danoReal = (int) ceil($danoReal * 2);
         }
 
         $alvo->receberDano($danoReal);
@@ -203,22 +145,65 @@ abstract class Personagem {
         }
 
         return [
-            'acertou' => true,
-            'vidaAntes' => $vidaAntes,
-            'danoReal' => $danoReal,
+            'acertou'    => true,
+            'vidaAntes'  => $vidaAntes,
+            'danoReal'   => $danoReal,
             'foiCritico' => $foiCritico,
-            'mensagem' => $mensagem,
+            'mensagem'   => $mensagem,
         ];
     }
 
-    public function aplicarSangramento(int $danoPorTurno, int $turnos): void {
-        $this->sangramentoDanoPorTurno = max(0, $danoPorTurno);
-        $this->sangramentoTurnos = max(0, $turnos);
+    protected function sorteouDesvio(): bool {
+        return random_int(1, 100) <= 10;
     }
 
-    public function aplicarQueimadura(int $danoPorTurno, int $turnos): void {
-        $this->queimaduraDanoPorTurno = max(0, $danoPorTurno);
-        $this->queimaduraTurnos = max(0, $turnos);
+    protected function sorteouCritico(): bool {
+        return random_int(1, 100) <= 5;
+    }
+
+    protected function aplicarReducaoDanoDefesa(int $danoReal): int {
+        if ($danoReal <= 0) {
+            return 0;
+        }
+
+        if (!$this->defendendo) {
+            return $danoReal;
+        }
+
+        return (int) ceil($danoReal * 0.5);
+    }
+
+    protected function formatarMensagemAcaoComAlvo(string $nomeAcao, Personagem $alvo, int $vidaAntes, int $danoReal): string {
+        $vidaDepois = $alvo->getVidaAtual();
+
+        if ($vidaDepois === $vidaAntes || $danoReal <= 0) {
+            return "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, mas {$alvo->getNome()} desviou!";
+        }
+
+        return "{$this->nome} usou {$nomeAcao} em {$alvo->getNome()}, causando {$danoReal} de dano.";
+    }
+
+    protected function formatarMensagemAcaoSemAlvo(string $nomeAcao): string {
+        return "{$this->nome} usou {$nomeAcao}.";
+    }
+
+    // ── Receber dano ─────────────────────────────────────────────────────
+
+    public function receberDano(int $danoReal): void {
+        $tipoDano = $this->consumirTipoDanoRecebido();
+        $danoReal = $this->aplicarReducaoDanoDefesa($danoReal);
+
+        if ($danoReal <= 0) {
+            return;
+        }
+
+        $this->registrarTipoDanoRecebido($tipoDano);
+
+        $this->vidaAtual -= $danoReal;
+
+        if ($this->vidaAtual < 0) {
+            $this->vidaAtual = 0;
+        }
     }
 
     protected function definirTipoDoProximoDanoRecebido(string $tipo): void {
@@ -234,6 +219,23 @@ abstract class Personagem {
 
     protected function registrarTipoDanoRecebido(string $tipo): void {
         $this->ultimoTipoDano = $tipo;
+    }
+
+    // ── Efeitos contínuos ────────────────────────────────────────────────
+
+    public function aplicarSangramento(int $danoPorTurno, int $turnos): void {
+        $this->sangramentoDanoPorTurno = max(0, $danoPorTurno);
+        $this->sangramentoTurnos = max(0, $turnos);
+    }
+
+    public function aplicarQueimadura(int $danoPorTurno, int $turnos): void {
+        $this->queimaduraDanoPorTurno = max(0, $danoPorTurno);
+        $this->queimaduraTurnos = max(0, $turnos);
+    }
+
+    public function processarEfeitosContinuosFimTurno(): void {
+        $this->processarSangramento();
+        $this->processarQueimadura();
     }
 
     private function processarEfeitoContinuo(string $tipo, int &$turnos, int &$danoPorTurno): void {
@@ -258,13 +260,14 @@ abstract class Personagem {
         $this->processarEfeitoContinuo('burn', $this->queimaduraTurnos, $this->queimaduraDanoPorTurno);
     }
 
-    public function getHabilidades(): array {
+    // ── Dados e configuração ─────────────────────────────────────────────
 
+    public function getHabilidades(): array {
         return [
             [
-                "nome" => "Habilidade Especial",
-                "metodo" => "usarHabilidadeEspecial",
-                "precisaAlvo" => true
+                "nome"        => "Habilidade Especial",
+                "metodo"      => "usarHabilidadeEspecial",
+                "precisaAlvo" => true,
             ]
         ];
     }
@@ -275,6 +278,16 @@ abstract class Personagem {
             'Defesa' => 'Reduz em 50% o dano recebido até o próximo turno.',
         ];
     }
+
+    public function getConfiguracaoVisual(): array {
+        return [
+            'baseSprite' => null,
+            'actions'    => [],
+            'reactions'  => [],
+        ];
+    }
+
+    // ── Identidade e flags ───────────────────────────────────────────────
 
     private function nomeClasse(): string {
         return (new ReflectionClass($this))->getShortName();
@@ -296,13 +309,7 @@ abstract class Personagem {
         return false;
     }
 
-    public function getConfiguracaoVisual(): array {
-        return [
-            'baseSprite' => null,
-            'actions' => [],
-            'reactions' => [],
-        ];
-    }
+    // ── Abstratos ────────────────────────────────────────────────────────
 
     abstract public function usarHabilidadeEspecial(Personagem $alvo): string;
 

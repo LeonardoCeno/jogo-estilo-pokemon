@@ -109,7 +109,7 @@ class Sukuna extends Personagem {
             'Desmantelar' => 'Causa ' . self::DANO_DESMANTELAR . ' de dano. Bleed: ' . (int) ceil(self::DANO_DESMANTELAR * 0.40) . ' por turno por 2 turnos. Custo: ' . self::CUSTO_DESMANTELAR . ' energia.',
             'Kamino Fuga' => 'Causa ' . self::DANO_KAMINO_FUGA . ' de dano. Burn: ' . (int) ceil(self::DANO_KAMINO_FUGA * 0.40) . ' por turno por 1 turno. Custo: ' . self::CUSTO_KAMINO_FUGA . ' energia.',
             'Reverse Energy' => 'Cura ' . self::CURA_REVERSE . ' de vida. Custo: ' . self::CUSTO_REVERSE . ' energia.',
-            'Domain' => 'Causa ' . self::DANO_DOMAIN . ' de dano. Bleed: por 3 turnos. Custo: ' . self::CUSTO_DOMAIN . ' energia.',
+            'Domain' => 'Causa ' . self::DANO_DOMAIN . ' de dano. Bleed: por 2 turnos. Custo: ' . self::CUSTO_DOMAIN . ' energia.',
         ]);
     }
 

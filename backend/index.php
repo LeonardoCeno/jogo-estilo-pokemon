@@ -21,13 +21,23 @@ function exibirStatus(array $game): void {
     echo "Jogador 2: {$p2->getNome()} (HP: {$p2->getVidaAtual()}/{$p2->getVidaMaxima()}, Energia: {$p2->getEnergiaAtual()}/{$p2->getEnergiaMaxima()})\n";
 }
 
+function exibirAcoesDisponiveis(array $acoes): void {
+    echo "\nAções disponíveis:\n";
+
+    foreach ($acoes as $index => $acao) {
+        echo $index + 1 . ". " . $acao['label'] . "\n";
+    }
+
+    echo "Escolha uma ação: ";
+}
+
 function escolherPersonagem(int $jogador): Personagem {
     $catalogo = GameService::getCharacterCatalog();
 
     echo "Jogador {$jogador}, escolha seu personagem:\n";
 
     foreach ($catalogo as $index => $item) {
-        echo ($index + 1) . ". " . $item['label'] . "\n";
+        echo $index + 1 . ". " . $item['label'] . "\n";
     }
 
     do {
@@ -51,20 +61,6 @@ function escolherPersonagem(int $jogador): Personagem {
     return GameService::createCharacter($item['key'], $nome !== '' ? $nome : "Jogador {$jogador}");
 }
 
-function exibirAcoesDisponiveis(Personagem $atual): array {
-    $acoes = GameService::buildAvailableActions($atual);
-
-    echo "\nAções disponíveis:\n";
-
-    foreach ($acoes as $index => $acao) {
-        echo $index + 1 . ". " . $acao['label'] . "\n";
-    }
-
-    echo "Escolha uma ação: ";
-
-    return $acoes;
-}
-
 function main(): void {
 
     do {
@@ -83,7 +79,8 @@ function main(): void {
 
             [, $atual] = GameService::getCurrentAndOpponent($game);
             exibirStatus($game);
-            $acoes = exibirAcoesDisponiveis($atual);
+            $acoes = GameService::buildAvailableActions($atual);
+            exibirAcoesDisponiveis($acoes);
 
             try {
 

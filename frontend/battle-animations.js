@@ -6,6 +6,9 @@ const SPRITES_CORTES_DOMINIO_SUKUNA = [
 ];
 
 export function createAnimationController({ state, els, atualizarHUD }) {
+
+	// ── Helpers visuais ──────────────────────────────────────────────────
+
 	function normalizarTipoFlutuante(tipo) {
 		if (tipo === "bleed" || tipo === "burn" || tipo === "heal") return tipo;
 		return "direct";
@@ -39,6 +42,8 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		setTimeout(() => damageEl.remove(), 1250);
 	}
 
+	// ── Feedback de dano ─────────────────────────────────────────────────
+
 	function aplicarFeedbackDeDano(estadoAnterior, novoEstado) {
 		if (!estadoAnterior?.started || !novoEstado?.started) return;
 
@@ -71,7 +76,9 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		mostrarNumeroFlutuante("p2", curaP2, "heal");
 	}
 
-	function esperar(ms) {
+	// ── Utilitários ──────────────────────────────────────────────────────
+
+	function wait(ms) {
 		if (ms <= 0) return Promise.resolve();
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
@@ -95,6 +102,8 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		});
 	}
 
+	// ── Timeline ─────────────────────────────────────────────────────────
+
 	function runTimeline(events) {
 		if (!events.length) return { duration: 0, cancel() {} };
 		const handles = events.map(({ at, run }) => setTimeout(run, at));
@@ -105,30 +114,6 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 				handles.forEach(clearTimeout);
 			},
 		};
-	}
-
-	function obterLayerCortesDominio() {
-		if (!els.arena) return null;
-		let layer = els.arena.querySelector(".domain-cuts-layer");
-		if (!layer) {
-			layer = document.createElement("div");
-			layer.className = "domain-cuts-layer";
-			els.arena.appendChild(layer);
-		}
-		return layer;
-	}
-
-	function limparCortesDominioSukuna() {
-		state.domainCutsTimeouts.forEach((id) => clearTimeout(id));
-		state.domainCutsTimeouts = [];
-
-		if (state.domainCutsIntervalId !== null) {
-			clearInterval(state.domainCutsIntervalId);
-			state.domainCutsIntervalId = null;
-		}
-
-		const layer = els.arena?.querySelector(".domain-cuts-layer");
-		if (layer) layer.innerHTML = "";
 	}
 
 	function cancelAnimation() {
@@ -143,6 +128,67 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 			?.querySelectorAll(".arena-action-overlay, .arena-energy-beam, .fighter-action-overlay")
 			.forEach((el) => el.remove());
 	}
+
+	// ── Leitura de dados de animação ─────────────────────────────────────
+
+	function obterFramesAnimacao(chaveJogador, caminho, nome) {
+		const server = state.serverState;
+		if (!server || !server[chaveJogador]) return [];
+
+		const raiz = caminho === "actions"
+			? server[chaveJogador].visual?.actions || {}
+			: server[chaveJogador].visual?.reactions || {};
+
+		const alvo = raiz[nome];
+		const frames = Array.isArray(alvo?.frames) ? alvo.frames : [];
+		return frames
+			.filter((frame) => frame && typeof frame.sprite === "string" && frame.sprite.trim() !== "")
+			.map((frame) => ({
+				sprite: frame.sprite,
+				durationMs: Number(frame.durationMs) > 0 ? Number(frame.durationMs) : 0,
+				cssClass: frame.cssClass || null,
+			}));
+	}
+
+	function obterFramesAnimacaoAcao(chaveJogador, nomeAcao) {
+		return obterFramesAnimacao(chaveJogador, "actions", nomeAcao);
+	}
+
+	function obterFramesReacaoDefesa(chaveJogador) {
+		return obterFramesAnimacao(chaveJogador, "reactions", "defendingHit");
+	}
+
+	function obterOverlaysAnimacaoAcao(chaveJogador, nomeAcao) {
+		const server = state.serverState;
+		if (!server || !server[chaveJogador]) return [];
+
+		const actionConfig = server[chaveJogador].visual?.actions?.[nomeAcao];
+		const overlays = Array.isArray(actionConfig?.overlays) ? actionConfig.overlays : [];
+
+		return overlays
+			.filter((overlay) => overlay && (overlay.mode === "beam" || overlay.sprite?.trim()))
+			.map((overlay) => ({
+				mode: overlay.mode ?? "attached",
+				beamTone: overlay.beamTone ?? "normal",
+				target: overlay.target ?? "opponent",
+				sprite: overlay.sprite ?? "",
+				startMs: overlay.startMs ?? 0,
+				durationMs: overlay.durationMs ?? 0,
+				x: overlay.x ?? 0,
+				y: overlay.y ?? 0,
+				scale: overlay.scale ?? 1,
+				sizePx: overlay.sizePx ?? 260,
+				frontOffsetPx: overlay.frontOffsetPx ?? 0,
+				projectileAngleDeg: overlay.projectileAngleDeg ?? 0,
+				thicknessPx: overlay.thicknessPx ?? 26,
+				startOffsetX: overlay.startOffsetX ?? 0,
+				startOffsetY: overlay.startOffsetY ?? 0,
+				endOffsetX: overlay.endOffsetX ?? 0,
+				endOffsetY: overlay.endOffsetY ?? 0,
+			}));
+	}
+
+	// ── Construtores de eventos ──────────────────────────────────────────
 
 	function buildFrameEvents(chaveJogador, frames) {
 		if (!frames.length) return [];
@@ -164,6 +210,75 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		events.push({ at: tempoAtual, run() {} });
 		return events;
 	}
+
+	function buildOverlayEvents(overlay, atacanteKey) {
+		let el = null;
+		return [
+			{
+				at: overlay.startMs,
+				run() {
+					el = criarOverlayEl(overlay, atacanteKey);
+				},
+			},
+			{
+				at: overlay.startMs + overlay.durationMs,
+				run() {
+					el?.remove();
+					el = null;
+				},
+			},
+		];
+	}
+
+	function buildDomainEvents(atacanteKey, nomeAcao) {
+		const actionConfig = state.serverState?.[atacanteKey]?.visual?.actions?.[nomeAcao] ?? {};
+		const domainImage = actionConfig.domainImage ?? null;
+		if (!domainImage) return [];
+
+		const delay = Number(actionConfig.domainDelayMs) > 0 ? Number(actionConfig.domainDelayMs) : 0;
+		const cutsDelay = Number(actionConfig.domainCutsDelayMs) > 0 ? Number(actionConfig.domainCutsDelayMs) : null;
+		const events = [
+			{
+				at: delay,
+				run() {
+					state.domainImage = domainImage;
+					atualizarHUD();
+				},
+			},
+		];
+
+		if (cutsDelay !== null) {
+			events.push({
+				at: delay + cutsDelay,
+				run() {
+					state.domainCutsActive = true;
+					atualizarHUD();
+				},
+			});
+		}
+
+		return events;
+	}
+
+	function buildAnimation(atacanteKey, acao, defensorKey, defensorEstaDefendendo) {
+		const nomeAcao = acao.nomeSprite || acao.nome;
+		const events = [];
+
+		events.push(...buildFrameEvents(atacanteKey, obterFramesAnimacaoAcao(atacanteKey, nomeAcao)));
+
+		if (acao.targetsOpponent && defensorEstaDefendendo) {
+			events.push(...buildFrameEvents(defensorKey, obterFramesReacaoDefesa(defensorKey)));
+		}
+
+		for (const overlay of obterOverlaysAnimacaoAcao(atacanteKey, nomeAcao)) {
+			events.push(...buildOverlayEvents(overlay, atacanteKey));
+		}
+
+		events.push(...buildDomainEvents(atacanteKey, nomeAcao));
+		return events;
+	}
+
+	// ── Criação de elementos de overlay ─────────────────────────────────
 
 	function calcularPosicoes(overlay, atacanteKey, origemEl, alvoEl, arenaRect) {
 		const direcaoFrente = atacanteKey === "p1" ? 1 : -1;
@@ -249,131 +364,30 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		return criarProjectileEl(overlay, pos);
 	}
 
-	function buildOverlayEvents(overlay, atacanteKey) {
-		let el = null;
-		return [
-			{
-				at: overlay.startMs,
-				run() {
-					el = criarOverlayEl(overlay, atacanteKey);
-				},
-			},
-			{
-				at: overlay.startMs + overlay.durationMs,
-				run() {
-					el?.remove();
-					el = null;
-				},
-			},
-		];
+	// ── Domain de Sukuna ─────────────────────────────────────────────────
+
+	function obterLayerCortesDominio() {
+		if (!els.arena) return null;
+		let layer = els.arena.querySelector(".domain-cuts-layer");
+		if (!layer) {
+			layer = document.createElement("div");
+			layer.className = "domain-cuts-layer";
+			els.arena.appendChild(layer);
+		}
+		return layer;
 	}
 
-	function buildDomainEvents(atacanteKey, nomeAcao) {
-		const actionConfig = state.serverState?.[atacanteKey]?.visual?.actions?.[nomeAcao] ?? {};
-		const domainImage = actionConfig.domainImage ?? null;
-		if (!domainImage) return [];
+	function limparCortesDominioSukuna() {
+		state.domainCutsTimeouts.forEach((id) => clearTimeout(id));
+		state.domainCutsTimeouts = [];
 
-		const delay = Number(actionConfig.domainDelayMs) > 0 ? Number(actionConfig.domainDelayMs) : 0;
-		const cutsDelay = Number(actionConfig.domainCutsDelayMs) > 0 ? Number(actionConfig.domainCutsDelayMs) : null;
-		const events = [
-			{
-				at: delay,
-				run() {
-					state.domainImage = domainImage;
-					atualizarHUD();
-				},
-			},
-		];
-
-		if (cutsDelay !== null) {
-			events.push({
-				at: delay + cutsDelay,
-				run() {
-					state.domainCutsActive = true;
-					atualizarHUD();
-				},
-			});
+		if (state.domainCutsIntervalId !== null) {
+			clearInterval(state.domainCutsIntervalId);
+			state.domainCutsIntervalId = null;
 		}
 
-		return events;
-	}
-
-	function obterFramesAnimacao(chaveJogador, caminho, nome) {
-		const server = state.serverState;
-		if (!server || !server[chaveJogador]) return [];
-
-		const raiz = caminho === "actions"
-			? server[chaveJogador].visual?.actions || {}
-			: server[chaveJogador].visual?.reactions || {};
-
-		const alvo = raiz[nome];
-		const frames = Array.isArray(alvo?.frames) ? alvo.frames : [];
-		return frames
-			.filter((frame) => frame && typeof frame.sprite === "string" && frame.sprite.trim() !== "")
-			.map((frame) => ({
-				sprite: frame.sprite,
-				durationMs: Number(frame.durationMs) > 0 ? Number(frame.durationMs) : 0,
-			}));
-	}
-
-	function obterFramesAnimacaoAcao(chaveJogador, nomeAcao) {
-		return obterFramesAnimacao(chaveJogador, "actions", nomeAcao);
-	}
-
-	function obterOverlaysAnimacaoAcao(chaveJogador, nomeAcao) {
-		const server = state.serverState;
-		if (!server || !server[chaveJogador]) return [];
-
-		const actionConfig = server[chaveJogador].visual?.actions?.[nomeAcao];
-		const overlays = Array.isArray(actionConfig?.overlays) ? actionConfig.overlays : [];
-
-		return overlays
-			.filter((overlay) => {
-				if (!overlay) return false;
-				if (overlay.mode === "beam") return true;
-				return typeof overlay.sprite === "string" && overlay.sprite.trim() !== "";
-			})
-			.map((overlay) => ({
-				mode: overlay.mode === "projectile" ? "projectile" : overlay.mode === "beam" ? "beam" : "attached",
-				beamTone: overlay.beamTone === "dark" ? "dark" : overlay.beamTone === "pink" ? "pink" : "normal",
-				target: overlay.target === "self" ? "self" : "opponent",
-				sprite: typeof overlay.sprite === "string" ? overlay.sprite : "",
-				startMs: Number(overlay.startMs) > 0 ? Number(overlay.startMs) : 0,
-				durationMs: Number(overlay.durationMs) > 0 ? Number(overlay.durationMs) : 0,
-				x: Number.isFinite(Number(overlay.x)) ? Number(overlay.x) : 0,
-				y: Number.isFinite(Number(overlay.y)) ? Number(overlay.y) : 0,
-				scale: Number(overlay.scale) > 0 ? Number(overlay.scale) : 1,
-				sizePx: Number(overlay.sizePx) > 0 ? Number(overlay.sizePx) : 260,
-				frontOffsetPx: Number.isFinite(Number(overlay.frontOffsetPx)) ? Number(overlay.frontOffsetPx) : 0,
-				projectileAngleDeg: Number.isFinite(Number(overlay.projectileAngleDeg)) ? Number(overlay.projectileAngleDeg) : 0,
-				thicknessPx: Number(overlay.thicknessPx) > 0 ? Number(overlay.thicknessPx) : 26,
-				startOffsetX: Number.isFinite(Number(overlay.startOffsetX)) ? Number(overlay.startOffsetX) : 0,
-				startOffsetY: Number.isFinite(Number(overlay.startOffsetY)) ? Number(overlay.startOffsetY) : 0,
-				endOffsetX: Number.isFinite(Number(overlay.endOffsetX)) ? Number(overlay.endOffsetX) : 0,
-				endOffsetY: Number.isFinite(Number(overlay.endOffsetY)) ? Number(overlay.endOffsetY) : 0,
-			}));
-	}
-
-	function obterFramesReacaoDefesa(chaveJogador) {
-		return obterFramesAnimacao(chaveJogador, "reactions", "defendingHit");
-	}
-
-	function buildAnimation(atacanteKey, acao, defensorKey, defensorEstaDefendendo) {
-		const nomeAcao = acao.nomeSprite || acao.nome;
-		const events = [];
-
-		events.push(...buildFrameEvents(atacanteKey, obterFramesAnimacaoAcao(atacanteKey, nomeAcao)));
-
-		if (acao.targetsOpponent && defensorEstaDefendendo) {
-			events.push(...buildFrameEvents(defensorKey, obterFramesReacaoDefesa(defensorKey)));
-		}
-
-		for (const overlay of obterOverlaysAnimacaoAcao(atacanteKey, nomeAcao)) {
-			events.push(...buildOverlayEvents(overlay, atacanteKey));
-		}
-
-		events.push(...buildDomainEvents(atacanteKey, nomeAcao));
-		return events;
+		const layer = els.arena?.querySelector(".domain-cuts-layer");
+		if (layer) layer.innerHTML = "";
 	}
 
 	function criarCorteAleatorioDominioSukuna() {
@@ -410,6 +424,8 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		}, 30);
 	}
 
+	// ── Renderização de personagens ──────────────────────────────────────
+
 	function aplicarVisualPersonagem(chaveJogador, personagem, fighterRefs) {
 		if (!fighterRefs?.root || !fighterRefs.img) return;
 
@@ -426,12 +442,6 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 		if (spriteTemporario) {
 			img.src = spriteTemporario;
 			fighterEl.classList.add("has-image", "action-casting");
-			if (spriteTemporario.endsWith("/ciferfinalform.png") || spriteTemporario.endsWith("/ciferfinalcero.png")) {
-				fighterEl.classList.add("true-cero-sized");
-			}
-			if (spriteTemporario.endsWith("/ciferfinalcero.png")) {
-				fighterEl.classList.add("true-cero-plus-sized");
-			}
 			atualizarClasseFlipDoFighter(fighterEl);
 			img.onerror = () => fighterEl.classList.remove("has-image", "is-flipped", "action-casting");
 			if (initial) initial.textContent = (nomeClasse || "?").trim().charAt(0).toUpperCase() || "?";
@@ -476,7 +486,7 @@ export function createAnimationController({ state, els, atualizarHUD }) {
 
 	return {
 		aplicarFeedbackDeDano,
-		esperar,
+		wait,
 		mostrarSplashErroInsano,
 		runTimeline,
 		cancelAnimation,
