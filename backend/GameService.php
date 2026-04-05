@@ -53,8 +53,12 @@ class GameService {
         return $metodo !== '' ? $metodo : null;
     }
 
+    private static function getEfeitosVazio(): array {
+        return ['skipTurns' => 0, 'skipTurnsChance' => 0, 'activatesDomain' => false];
+    }
+
     private static function obterEfeitosSkill(Personagem $current, ?int $skillIndex): array {
-        $vazio = ['skipTurns' => 0, 'skipTurnsChance' => 0, 'activatesDomain' => false];
+        $vazio = self::getEfeitosVazio();
 
         if ($skillIndex === null) {
             return $vazio;
@@ -313,7 +317,7 @@ class GameService {
     public static function performTurn(array &$game, string $actionType, ?int $skillIndex = null): string {
         [$currentKey, $current, $opponent] = self::getCurrentAndOpponent($game);
 
-        $efeitos = ['skipTurns' => 0, 'skipTurnsChance' => 0, 'activatesDomain' => false];
+        $efeitos = self::getEfeitosVazio();
 
         if ($actionType === 'skill' && $skillIndex !== null) {
             $habilidades = $current->getHabilidades();
