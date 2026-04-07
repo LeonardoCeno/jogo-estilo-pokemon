@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Arena de Turnos</title>
+  <title>Arena Mugen</title>
   <link rel="stylesheet" href="batalha.css" />
   <script>
     globalThis.__twind = {
@@ -32,22 +32,30 @@
 <body>
   <main class="battle-app">
     <header class="topbar">
-      <h1>ARENA </h1>
+      <h1> Arena MUGEN </h1>
       <p id="turn-info">Prepare a partida</p>
     </header>
 
     <section class="setup-screen" id="setup-panel">
-      <div class="setup-card">
-        <p>Defina nome e classe dos dois jogadores para iniciar o duelo.</p>
+      <div class="setup-stage">
+        <p class="setup-subtitle">Escolha os lutadores e inicie o duelo</p>
 
-        <div class="setup-grid">
-          <div class="setup-row">
+        <div class="setup-arena">
+          <div class="setup-player setup-player--p1">
+            <span class="setup-player-label">JOGADOR 1</span>
             <input id="p1-name" type="text" value="Jogador 1" maxlength="20" />
             <input type="hidden" id="p1-class" value="sukuna" />
             <div class="char-picker" data-for="p1-class"></div>
           </div>
 
-          <div class="setup-row">
+          <div class="setup-vs">
+            <span class="setup-vs-line"></span>
+            <span class="setup-vs-badge">VS</span>
+            <span class="setup-vs-line"></span>
+          </div>
+
+          <div class="setup-player setup-player--p2">
+            <span class="setup-player-label">JOGADOR 2</span>
             <input id="p2-name" type="text" value="Jogador 2" maxlength="20" />
             <input type="hidden" id="p2-class" value="gojo" />
             <div class="char-picker" data-for="p2-class"></div>
