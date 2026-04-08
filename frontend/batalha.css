@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+
 :root {
   --bg: #121219;
   --bg-soft: #1b1f2b;
@@ -11,6 +13,8 @@
   --hp: #66e08b;
   --hp-danger: #ffd46d;
   --energy: #7fc4ff;
+  --font-ui: "Rajdhani", "Segoe UI", sans-serif;
+  --font-display: "Orbitron", "Segoe UI", sans-serif;
 }
 
 html,
@@ -28,24 +32,37 @@ body {
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-   background-image: url('./assets/fundos/UNIVERSO.png');
+  font-family: var(--font-ui);
+  background-image: url('./assets/fundos/outrofundo.png');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   color: var(--text);
 }
 
+.topbar h1,
+.setup-subtitle,
+.setup-player-label,
+.setup-vs-badge,
+.start-btn,
+.feed h3,
+.controls h3,
+.winner-text,
+.play-again-btn {
+  font-family: var(--font-display);
+}
+
 .battle-app {
-  width: min(1200px, 100vw);
+  width: min(1160px, 100vw);
   height: 100dvh;
-  border: 1px solid var(--line-soft);
+
   border-radius: 0;
-  overflow: hidden;
-  background: linear-gradient(180deg, #1b1f2e, #161a27 65%, #111420);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   display: grid;
   grid-template-rows: auto 1fr;
+}
+
+.battle-app.is-playing {
+  overflow: hidden;
 }
 
 .topbar {
@@ -53,8 +70,16 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 16px 22px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #1b1f2e, #161a27 65%, #111420);
+  box-shadow: 0 45px 90px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  width: 100vw;
+  margin-left: calc((100% - 100vw) / 2);
+}
+
+.battle-app.is-playing .topbar {
+  width: auto;
+  margin-left: 0;
 }
 
 .topbar h1 {
@@ -79,7 +104,7 @@ body {
 }
 
 .setup-stage {
-  width: min(1020px, 100%);
+  width: min(1090px, 100%);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -89,10 +114,11 @@ body {
 
 .setup-subtitle {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.80rem;
   letter-spacing: 0.18em;
   color: var(--muted);
   text-transform: uppercase;
+  font-weight: bold;
 }
 
 .setup-arena {
@@ -114,6 +140,13 @@ body {
   position: relative;
   overflow: hidden;
   min-height: 0;
+  background: linear-gradient(
+  180deg,
+  rgba(27, 31, 46, 0.99),
+  rgba(22, 26, 39, 0.99) 65%,
+  rgba(17, 20, 32, 0.99)
+);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .setup-player::before {
@@ -124,14 +157,14 @@ body {
 }
 
 .setup-player--p1 {
-  border-radius: 14px 0 0 14px;
+  border-radius: 10px 0 0 10px;
   border-right: none;
   border-color: rgba(126, 214, 198, 0.22);
 }
 
 
 .setup-player--p2 {
-  border-radius: 0 14px 14px 0;
+  border-radius: 0 10px 10px 0;
   border-left: none;
   border-color: rgba(255, 107, 107, 0.22);
 }
@@ -219,9 +252,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 1rem;
   letter-spacing: 0.03em;
   text-align: center;
   transition: border-color 0.12s, background 0.12s, transform 0.12s;
@@ -229,7 +262,7 @@ body {
 
 .char-option img {
   width: 100%;
-  height: 60px;
+  height: 64px;
   object-fit: contain;
   object-position: bottom;
 }
@@ -246,9 +279,9 @@ body {
 }
 
 .char-picker[data-for="p2-class"] .char-option.is-selected {
-  border-color: #ff6b6b;
+  border-color: #fd5454;
   background: rgba(255, 107, 107, 0.1);
-  color: #ff8f8f;
+  color: #ff7f7f;
 }
 
 .char-picker[data-for="p2-class"] .char-option.is-selected:hover {
@@ -256,9 +289,8 @@ body {
   background: rgba(255, 107, 107, 0.15);
 }
 
-/* Start button */
 .start-btn {
-  width: min(480px, 100%);
+  width: min(500px, 100%);
   padding: 14px 24px;
   background: linear-gradient(135deg, #1c2d48, #162338);
   color: var(--accent);
@@ -370,7 +402,7 @@ body {
   padding: 14px 14px 12px;
   border: 1px solid var(--line-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(66, 72, 82, 0.95), rgba(44, 49, 58, 0.95));
+  background: linear-gradient(180deg, rgba(66, 72, 82, 0.87), rgba(44, 49, 58, 0.87));
   backdrop-filter: blur(2px);
   z-index: 3;
 }
@@ -699,13 +731,15 @@ body {
   height: 165px;
   min-height: 165px;
   max-height: 165px;
+  background: linear-gradient(180deg, #1b1f2e, #161a27 65%, #111420);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .feed,
 .controls {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #222838, #1a1f2d);
+  border-radius: 7px;
+  background: linear-gradient(180deg, #14171f, #1a1f2d);
   padding: 12px;
   min-height: 0;
   height: 100%;
@@ -786,7 +820,7 @@ body {
 
 .grid-actions button {
   border: 1px solid #6a748f;
-  border-radius: 10px;
+  border-radius: 4px;
   background: linear-gradient(180deg, #2e3548, #252b3b);
   color: var(--text);
   font-size: 0.86rem;

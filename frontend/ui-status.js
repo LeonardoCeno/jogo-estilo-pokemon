@@ -52,8 +52,10 @@ export function createUIController({ state, els, onActionSelected }) {
 
 	function setArenaDomain(domainImage) {
 		if (!els.arena) return;
-		if (domainImage) {
-			els.arena.style.backgroundImage = `linear-gradient(rgba(20,22,32,0.25),rgba(20,22,32,0.25)), url('${domainImage}')`;
+		const img = domainImage || state.arenaFundo;
+		if (img) {
+			const overlay = domainImage ? 'linear-gradient(rgba(20,22,32,0.25),rgba(20,22,32,0.25)), ' : '';
+			els.arena.style.backgroundImage = `${overlay}url('${img}')`;
 			els.arena.style.backgroundSize = 'cover';
 			els.arena.style.backgroundPosition = 'center';
 			els.arena.style.backgroundRepeat = 'no-repeat';
@@ -212,10 +214,12 @@ export function createUIController({ state, els, onActionSelected }) {
 		state.serverState = null;
 		state.resolvendoAcao = false;
 		state.actionPage = 0;
+		state.arenaFundo = null;
 		cancelAnimation();
 		esconderPreviewSkill();
 
 		els.battleView.classList.add("is-hidden");
+		els.battleApp?.classList.remove("is-playing");
 		els.setupPanel.classList.remove("is-hidden");
 		els.winnerOverlay.classList.add("is-hidden");
 		setArenaDomain(null);

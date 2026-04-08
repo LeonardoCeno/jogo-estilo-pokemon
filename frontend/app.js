@@ -11,6 +11,7 @@ import { createAnimationController } from "./battle-animations.js";
 		anim: null,
 		sprites: { p1: null, p2: null },
 		domainImage: null,
+		arenaFundo: null,
 		domainCutsActive: false,
 		domainCutsIntervalId: null,
 		domainCutsTimeouts: [],
@@ -28,6 +29,7 @@ import { createAnimationController } from "./battle-animations.js";
 		skillPreviewText: document.getElementById("skill-preview-text"),
 		menu: document.getElementById("action-menu"),
 		arena: document.querySelector(".arena"),
+		battleApp: document.querySelector(".battle-app"),
 		setupPanel: document.getElementById("setup-panel"),
 		battleView: document.getElementById("battle-view"),
 		startBtn: document.getElementById("start-btn"),
@@ -201,9 +203,13 @@ import { createAnimationController } from "./battle-animations.js";
 			animations.cancelAnimation();
 			ui.esconderPreviewSkill();
 
+			els.battleApp.classList.add("is-playing");
 			els.setupPanel.classList.add("is-hidden");
 			els.battleView.classList.remove("is-hidden");
 			els.log.innerHTML = "";
+
+			const fundos = ["BEACH 2.png","BEACH NIGHT.png","BEACH.png","CAVE 2.png","CAVE NIGHT.png","CAVE.png","DESERT NIGHT.png","DESERT.png","LAKE NIGHT.png","LAKE.png","MOUNTAIN 2.png","MOUNTAIN NIGHT.png","MOUNTAIN.png","OCEAN NIGHT.png","OCEAN.png","PATH 2.png","PATH NIGHT.png","PATH.png","SNOW NIGHT.png","SNOW.png","TALL GRASS NIGHT.png","TALL GRASS.png","UNDERWATER.png"];
+			state.arenaFundo = `./assets/fundosdojogo/${encodeURIComponent(fundos[Math.floor(Math.random() * fundos.length)])}`;
 			ui.adicionarLog(`Partida iniciada: ${state.serverState.p1.classeNome} vs ${state.serverState.p2.classeNome}.`);
 			atualizarHUD();
 			ui.montarAcoes();
